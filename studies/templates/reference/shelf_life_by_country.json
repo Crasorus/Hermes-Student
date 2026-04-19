@@ -1,0 +1,12 @@
+{
+  "_instructions": "Define the minimum remaining shelf life (in months) required at time of shipment for each destination country. Add one entry per country in your study.",
+
+  "countries": [
+    {
+      "country_code": "TODO: e.g. US",
+      "country_name": "TODO: e.g. United States",
+      "minimum_remaining_shelf_life_months": "TODO: e.g. 12",
+      "item_overrides": []
+    }
+  ]
+}

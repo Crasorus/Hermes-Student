@@ -1,0 +1,47 @@
+{
+  "_INSTRUCTIONS": "Define your supply chain business rules here. These policies tell Hermes when to reorder, how much safety stock to hold, and what your budget is.",
+
+  "safety_stock": {
+    "_comment": "Safety stock = the minimum amount of supply you always want to have on hand (a buffer against uncertainty). Measured in weeks of supply.",
+    "default_minimum_weeks": "TODO — e.g. 2 (keep at least 2 weeks of supply at all times)"
+  },
+
+  "reorder_rules": {
+    "_comment": "The reorder point is the trigger level — when stock falls to this many weeks of supply, the system recommends an order. Should be higher than safety_stock to allow time for delivery.",
+    "reorder_point_weeks": "TODO — e.g. 8 (order when 8 weeks of supply remain)",
+    "_comment2": "How much to order each time: minimum and maximum number of packs/units per order.",
+    "minimum_order_quantity": "TODO — e.g. 8",
+    "maximum_order_quantity": "TODO — e.g. 25"
+  },
+
+  "maximum_stock_levels": {
+    "_comment": "The ceiling — the system will not recommend building stock above this level. Prevents over-stocking and shelf-life risk.",
+    "default_maximum_weeks": "TODO — e.g. 12 (never hold more than 12 weeks of supply at any location)"
+  },
+
+  "budget": {
+    "_comment": "Total supply chain budget for this study. Set budget_envelope to null if budget tracking is not needed.",
+    "budget_envelope": "TODO — e.g. 1500000",
+    "currency": "TODO — e.g. USD"
+  },
+
+  "expiry_rules": {
+    "_comment": "Minimum shelf life remaining at the time a shipment is sent. If a lot has less than this, it should not be shipped.",
+    "minimum_remaining_shelf_life_months": "TODO — e.g. 6 (items must have at least 6 months remaining at time of shipment)",
+    "destruction_eligibility": {
+      "expired_stock": true,
+      "study_closed_stock": true,
+      "recalled_stock": true,
+      "damaged_stock": true
+    }
+  },
+
+  "sop_references": [
+    {
+      "_comment": "List the Standard Operating Procedures that govern supply chain activity for this study",
+      "sop_id": "TODO — e.g. SOP-001",
+      "sop_name": "TODO — e.g. Clinical Supply Ordering",
+      "description": "TODO — e.g. Governs the process for placing supply orders"
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "_comment": "Hermes workflow definitions. WF-01 is complete and provided as a reference. YOUR JOB: Fill in WF-LAB-01 below it.",
+
+  "routing_signals": [
+    "SIGNIFICANT_DELTA",
+    "MINOR_DELTA",
+    "HALT",
+    "DEMAND_CHANGE",
+    "INVENTORY_CHANGE",
+    "CRITICAL_HOTSPOT",
+    "MATERIAL_CHANGE",
+    "NON_COMPLIANT"
+  ],
+
+  "workflows": {
+
+    "WF-01": {
+      "_comment": "REFERENCE — This workflow is complete. Read it to understand the pattern, then fill in WF-LAB-01 below.",
+      "name": "Demand Signal Refresh",
+      "steps": [
+        {
+          "agent": "supervisor",
+          "task": "MANDATORY FIRST STEP: Execute DI-12 (Aggregate Data Query Tool) on the study package. Command: python runner/di_12_aggregate_data_query.py <rtsm_file> <ctms_file> <erp_file> <study_config>. Check overall_data_integrity status: if FAIL, halt immediately and report. If WARNING, log and continue with flag. If PASS, continue to next step."
+        },
+        {
+          "agent": "supervisor",
+          "task": "Validate the study package, score data quality, and route the workflow. Output a routing decision: include SIGNIFICANT_DELTA in your output if demand delta meets or exceeds the configured threshold, or MINOR_DELTA if below. Include HALT if validation fails."
+        },
+        {
+          "agent": "demand_analyst",
+          "task": "Parse RTSM actuals and CTMS plan data. Calculate demand deltas by item and country. Compare to baseline. Apply scenario analysis if SIGNIFICANT_DELTA was signalled."
+        },
+        {
+          "agent": "reporting_agent",
+          "task": "Generate the Demand Refresh Summary report based on all prior agent outputs."
+        }
+      ]
+    },
+
+    "WF-LAB-01": {
+      "_INSTRUCTIONS": "TODO: Fill in this workflow. Give it a name, then define 3-4 steps. Each step needs an agent name and a task description. Use WF-01 above as your guide.",
+
+      "name": "TODO — Give your workflow a name e.g. My Demand Check",
+
+      "steps": [
+        {
+          "_comment": "Step 1 is always the Supervisor running data validation. Copy this step exactly.",
+          "agent": "supervisor",
+          "task": "MANDATORY FIRST STEP: Execute DI-12 (Aggregate Data Query Tool) on the study package. Command: python runner/di_12_aggregate_data_query.py <rtsm_file> <ctms_file> <erp_file> <study_config>. Check overall_data_integrity status: if FAIL, halt immediately and report. If WARNING, log and continue with flag. If PASS, continue to next step."
+        },
+        {
+          "_comment": "Step 2: TODO — Choose your second agent. What should they do? Options: supervisor (routing), demand_analyst, supply_analyst, insights_analyst, compliance_manager, logistics_specialist, reporting_agent",
+          "agent": "TODO — agent name e.g. demand_analyst",
+          "task": "TODO — Describe what this agent should do in plain English. Be specific: what data should they analyse? What should they look for? What should they output?"
+        },
+        {
+          "_comment": "Step 3: TODO — Choose your third agent. The reporting_agent is a good choice for the final step — they write the summary report.",
+          "agent": "TODO — agent name e.g. reporting_agent",
+          "task": "TODO — Describe the task for this agent."
+        },
+        {
+          "_comment": "Step 4 is OPTIONAL. Delete this block if you only need 3 steps. Or fill it in to add a fourth agent.",
+          "agent": "TODO — optional fourth agent",
+          "task": "TODO — optional fourth task"
+        }
+      ]
+    }
+
+  }
+}

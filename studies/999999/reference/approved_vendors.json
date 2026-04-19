@@ -1,0 +1,16 @@
+{
+  "_instructions": "List all couriers, customs brokers, and CMOs approved for use in this study. Each vendor must be linked to the lane IDs defined in supply_network.json.",
+
+  "vendors": [
+    {
+      "vendor_id": "Vend101",
+      "vendor_name": "Marken",
+      "vendor_type": "Courier",
+      "approved_lanes": ["LANE-101"],
+      "capabilities": [
+        "ambient, cold_chain, controlled_substance, customs_clearance"
+      ],
+      "contact_info": "jim@marken.com"
+    }
+  ]
+}

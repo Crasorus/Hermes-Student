@@ -1,0 +1,22 @@
+
+# Generated outputs and data
+studies/*/outputs/
+studies/*/data_drops/
+
+# Binary/generated files
+*.docx
+*.pdf
+
+# Claude Code personal config
+.claude/MEMORY.md
+.claude/memories/
+.claude/settings.json
+.claude/settings.local.json
+
+# Superpowers runtime files
+.superpowers/
+
+# Environment files
+.env
+.env.local
+

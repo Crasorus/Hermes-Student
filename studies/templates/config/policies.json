@@ -1,0 +1,48 @@
+{
+  "_instructions": "Review and adjust the default policy values below to match your organisation's supply chain rules for this study.",
+
+  "safety_stock": {
+    "default_minimum_weeks": 4,
+    "_comment": "Minimum weeks of supply to maintain at each location. Increase for high-risk studies or long lead times.",
+    "overrides": []
+  },
+
+  "reorder_rules": {
+    "reorder_point_weeks": 8,
+    "_comment": "When weeks of supply drops to this level, trigger replenishment. Must be greater than safety stock to account for lead time.",
+    "minimum_order_quantity": 1,
+    "maximum_order_quantity": 100
+  },
+
+  "maximum_stock_levels": {
+    "default_maximum_weeks": 16,
+    "_comment": "Maximum weeks of supply at any location. Prevents over-ordering. Adjust based on shelf life and budget.",
+    "overrides": []
+  },
+
+  "budget": {
+    "budget_envelope": "TODO: total supply chain budget as a number, e.g. 1500000",
+    "currency": "TODO: e.g. USD or EUR or GBP",
+    "_comment": "Set budget_envelope to null if budget tracking is not required for this study."
+  },
+
+  "expiry_rules": {
+    "minimum_remaining_shelf_life_months": 6,
+    "_comment": "Default minimum remaining shelf life at time of shipment. Country-specific overrides are in reference/shelf_life_by_country.json.",
+    "destruction_eligibility": {
+      "expired_stock": true,
+      "study_closed_stock": true,
+      "recalled_stock": true,
+      "damaged_stock": true,
+      "_comment": "Stock meeting any of these conditions may be eligible for destruction, subject to verification that no open patients need the stock."
+    }
+  },
+
+  "sop_references": [
+    {
+      "sop_id": "TODO: e.g. SOP-001",
+      "sop_name": "TODO: e.g. Clinical Supply Ordering",
+      "description": "TODO: brief description of what this SOP governs"
+    }
+  ]
+}

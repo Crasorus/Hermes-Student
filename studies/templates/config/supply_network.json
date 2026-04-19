@@ -1,0 +1,41 @@
+{
+  "_instructions": "Define your study's physical supply chain: depots, manufacturing sites, shipping lanes, and which depot serves each country.",
+
+  "depots": [
+    {
+      "depot_id": "TODO: e.g. DP-US-01",
+      "depot_name": "TODO: e.g. US Distribution Depot",
+      "country": "TODO: e.g. US",
+      "capabilities": ["TODO: ambient and/or refrigerated and/or frozen"],
+      "description": "TODO: brief description"
+    }
+  ],
+
+  "manufacturing_sites": [
+    {
+      "site_id": "TODO: e.g. MFG-UK-01",
+      "site_name": "TODO: e.g. UK Manufacturing Site",
+      "country": "TODO: e.g. GB",
+      "produces": ["TODO: list item_ids produced here, e.g. IMP-001"],
+      "description": "TODO: brief description"
+    }
+  ],
+
+  "shipping_lanes": [
+    {
+      "lane_id": "TODO: e.g. LANE-001",
+      "origin": "TODO: depot_id or site_id of origin",
+      "destination": "TODO: depot_id of destination",
+      "lead_time_days": "TODO: total days from ship to receipt, e.g. 7",
+      "lane_type": "TODO: air or sea or road",
+      "description": "TODO: brief description"
+    }
+  ],
+
+  "country_depot_assignments": [
+    {
+      "country_code": "TODO: e.g. US",
+      "depot_id": "TODO: depot_id that serves this country"
+    }
+  ]
+}

@@ -1,0 +1,168 @@
+{
+  "_INSTRUCTIONS": "Fill in every field below using your Scenario Card. Fields marked TODO are required. Fields with examples show the expected format.",
+
+  "study_identity": {
+    "_comment": "TODO: Enter your study details from the Scenario Card",
+    "study_id": "TODO — e.g. STUDY-LAB-01",
+    "study_name": "TODO — e.g. BEACON-01",
+    "protocol_number": "TODO — e.g. BCN-2026-001",
+    "phase": "TODO — e.g. Phase II",
+    "sponsor": "TODO — e.g. Brightfield Therapeutics"
+  },
+
+  "treatment_arms": [
+    {
+      "_comment": "TODO: Fill in ARM-A (the active treatment arm)",
+      "arm_id": "ARM-A",
+      "arm_name": "TODO — e.g. Active Drug",
+      "description": "TODO — e.g. Once-daily oral tablet, 10mg"
+    },
+    {
+      "_comment": "TODO: Fill in ARM-B (the control/placebo arm)",
+      "arm_id": "ARM-B",
+      "arm_name": "TODO — e.g. Placebo",
+      "description": "TODO — e.g. Matched placebo tablet"
+    }
+  ],
+
+  "randomisation_ratio": "TODO — e.g. 1:1",
+
+  "items": [
+    {
+      "_comment": "TODO: Fill in your first investigational item (from Scenario Card)",
+      "item_id": "TODO — e.g. ITEM-001",
+      "item_name": "TODO — e.g. Active Tablet 10mg",
+      "arm": "ARM-A",
+      "pack_size": 1,
+      "units_per_pack": "TODO — e.g. 28 (tablets per bottle/blister)",
+      "temperature_requirement": "TODO — ambient OR refrigerated OR frozen",
+      "description": "TODO — e.g. TREATMENT BOTTLES"
+    },
+    {
+      "_comment": "TODO: Fill in your second investigational item (from Scenario Card)",
+      "item_id": "TODO — e.g. ITEM-002",
+      "item_name": "TODO — e.g. Placebo Tablet",
+      "arm": "ARM-B",
+      "pack_size": 1,
+      "units_per_pack": "TODO — e.g. 28",
+      "temperature_requirement": "TODO — ambient OR refrigerated OR frozen",
+      "description": "TODO — e.g. TREATMENT BOTTLES"
+    }
+  ],
+
+  "thresholds": {
+    "_comment": "The demand_delta_significance_pct controls when the Demand Analyst escalates. 10 means a 10% change triggers scenario modelling.",
+    "demand_delta_significance_pct": "TODO — e.g. 10",
+    "overrides": []
+  },
+
+  "countries": [
+    {
+      "_comment": "TODO: Add your first country (from Scenario Card)",
+      "country_code": "TODO — 2-letter ISO code e.g. US",
+      "country_name": "TODO — e.g. United States"
+    },
+    {
+      "_comment": "TODO: Add your second country (from Scenario Card)",
+      "country_code": "TODO — e.g. DE",
+      "country_name": "TODO — e.g. Germany"
+    }
+  ],
+
+  "sites": [
+    {
+      "_comment": "TODO: Add your first clinical site",
+      "site_id": "TODO — e.g. S001",
+      "site_name": "TODO — e.g. Boston Medical Center",
+      "country_code": "TODO — must match a country_code above"
+    },
+    {
+      "_comment": "TODO: Add your second clinical site",
+      "site_id": "TODO — e.g. S002",
+      "site_name": "TODO — e.g. Springfield General",
+      "country_code": "TODO — must match a country_code above"
+    },
+    {
+      "_comment": "TODO: Add your third clinical site",
+      "site_id": "TODO — e.g. S003",
+      "site_name": "TODO — e.g. Berlin Institute",
+      "country_code": "TODO — must match a country_code above"
+    }
+  ],
+
+  "required_files": {
+    "_comment": "DO NOT EDIT — these file definitions are standard across all studies",
+    "files": [
+      {
+        "file_name": "rtsm_actuals.csv",
+        "location": "data_drops/{data_drop_date}/",
+        "criticality": "critical"
+      },
+      {
+        "file_name": "erp_inventory.csv",
+        "location": "data_drops/{data_drop_date}/",
+        "criticality": "critical"
+      },
+      {
+        "file_name": "ctms_plan.csv",
+        "location": "data_drops/{data_drop_date}/",
+        "criticality": "critical"
+      },
+      {
+        "file_name": "site_inventory.csv",
+        "location": "data_drops/{data_drop_date}/",
+        "criticality": "critical"
+      }
+    ]
+  },
+
+  "schemas": {
+    "_comment": "DO NOT EDIT — these schema definitions are standard across all studies",
+    "ctms_plan": {
+      "required_columns": ["site_id", "country_code", "record_type", "record_date"],
+      "optional_columns": ["planned_enrollment", "actual_enrollment", "site_status", "visit_type", "visit_window_days"],
+      "column_types": {
+        "site_id": "text", "country_code": "text", "record_type": "text",
+        "record_date": "date", "planned_enrollment": "number", "actual_enrollment": "number",
+        "site_status": "text", "visit_type": "text", "visit_window_days": "number"
+      },
+      "date_formats": { "record_date": "DD-MMM-YYYY" }
+    },
+    "erp_inventory": {
+      "required_columns": ["item_id", "location", "record_type", "quantity", "record_date"],
+      "optional_columns": ["lot_number", "expiry_date", "order_id", "shipment_id", "status", "origin", "destination"],
+      "column_types": {
+        "item_id": "text", "location": "text", "record_type": "text", "quantity": "number",
+        "record_date": "date", "lot_number": "text", "expiry_date": "date",
+        "order_id": "text", "shipment_id": "text", "status": "text", "origin": "text", "destination": "text"
+      },
+      "date_formats": { "record_date": "DD-MMM-YYYY", "expiry_date": "DD-MMM-YYYY" }
+    },
+    "site_inventory": {
+      "required_columns": ["Site", "item_id", "On_Hand_Qty", "Weekly_Demand", "Min_Reorder_Point", "Max_Reorder_Point"],
+      "optional_columns": [],
+      "column_types": {
+        "Site": "text", "item_id": "text", "On_Hand_Qty": "number",
+        "Weekly_Demand": "number", "Min_Reorder_Point": "number", "Max_Reorder_Point": "number"
+      },
+      "date_formats": {}
+    },
+    "rtsm_actuals": {
+      "required_columns": ["site_id", "country_code", "event_type", "item_id"],
+      "optional_columns": ["arm_id", "event_date", "quantity", "patient_id", "lot_number", "notes"],
+      "column_types": {
+        "site_id": "text", "country_code": "text", "event_type": "text", "item_id": "text",
+        "arm_id": "text", "event_date": "date", "quantity": "number",
+        "patient_id": "text", "lot_number": "text", "notes": "text"
+      },
+      "date_formats": { "event_date": "DD-MMM-YYYY" }
+    }
+  },
+
+  "assumptions": {
+    "_comment": "TODO: Set realistic assumptions for your study scenario",
+    "screen_failure_rate_pct": "TODO — e.g. 20 (20% of screened patients fail screening)",
+    "dropout_rate_pct": "TODO — e.g. 10 (10% of randomised patients drop out)",
+    "review_period_weeks": "TODO — e.g. 4 (how many weeks of data each review covers)"
+  }
+}

@@ -1,0 +1,142 @@
+{
+  "_instructions": "Replace all TODO values with your study's actual data. The protocol_number must match the study folder name exactly.",
+
+  "study_identity": {
+    "study_id": "TODO: internal study identifier, e.g. STUDY-001",
+    "study_name": "TODO: full study name, e.g. CARDIO-PHASE2",
+    "protocol_number": "__STUDY_ID__",
+    "phase": "TODO: e.g. Phase I, Phase II, Phase III",
+    "sponsor": "TODO: e.g. Acme Pharma Ltd"
+  },
+
+  "treatment_arms": [
+    {
+      "arm_id": "ARM-A",
+      "arm_name": "TODO: e.g. Active",
+      "description": "TODO: brief description"
+    },
+    {
+      "arm_id": "ARM-B",
+      "arm_name": "TODO: e.g. Placebo",
+      "description": "TODO: brief description"
+    }
+  ],
+  "randomisation_ratio": "TODO: e.g. 1:1 or 2:1",
+
+  "items": [
+    {
+      "item_id": "TODO: e.g. IMP-001",
+      "item_name": "TODO: e.g. Active Drug",
+      "arm": "ARM-A",
+      "pack_size": 1,
+      "units_per_pack": "TODO: e.g. 28",
+      "temperature_requirement": "TODO: ambient or refrigerated or frozen",
+      "description": "TODO: e.g. 10mg tablets, 28-count bottle"
+    },
+    {
+      "item_id": "TODO: e.g. IMP-002",
+      "item_name": "TODO: e.g. Placebo",
+      "arm": "ARM-B",
+      "pack_size": 1,
+      "units_per_pack": "TODO: e.g. 28",
+      "temperature_requirement": "TODO: ambient or refrigerated or frozen",
+      "description": "TODO: e.g. Matching placebo, 28-count bottle"
+    }
+  ],
+
+  "thresholds": {
+    "demand_delta_significance_pct": 10,
+    "_comment": "Default 10%. Increase to reduce sensitivity, decrease for tighter monitoring.",
+    "overrides": []
+  },
+
+  "countries": [
+    {
+      "country_code": "TODO: e.g. US",
+      "country_name": "TODO: e.g. United States"
+    }
+  ],
+
+  "sites": [
+    {
+      "site_id": "TODO: e.g. S001",
+      "site_name": "TODO: e.g. Site Name",
+      "country_code": "TODO: must match a country_code above"
+    }
+  ],
+
+  "required_files": {
+    "files": [
+      {
+        "file_name": "rtsm_actuals.csv",
+        "location": "data_drops/{data_drop_date}/",
+        "criticality": "critical"
+      },
+      {
+        "file_name": "erp_inventory.csv",
+        "location": "data_drops/{data_drop_date}/",
+        "criticality": "critical"
+      },
+      {
+        "file_name": "ctms_plan.csv",
+        "location": "data_drops/{data_drop_date}/",
+        "criticality": "critical"
+      },
+      {
+        "file_name": "site_inventory.csv",
+        "location": "data_drops/{data_drop_date}/",
+        "criticality": "critical"
+      }
+    ]
+  },
+
+  "schemas": {
+    "ctms_plan": {
+      "required_columns": ["site_id", "country_code", "record_type", "record_date"],
+      "optional_columns": ["planned_enrollment", "actual_enrollment", "site_status", "visit_type", "visit_window_days"],
+      "column_types": {
+        "site_id": "text", "country_code": "text", "record_type": "text",
+        "record_date": "date", "planned_enrollment": "number",
+        "actual_enrollment": "number", "site_status": "text",
+        "visit_type": "text", "visit_window_days": "number"
+      },
+      "date_formats": { "record_date": "DD-MMM-YYYY" }
+    },
+    "erp_inventory": {
+      "required_columns": ["item_id", "location", "record_type", "quantity", "record_date"],
+      "optional_columns": ["lot_number", "expiry_date", "order_id", "shipment_id", "status", "origin", "destination"],
+      "column_types": {
+        "item_id": "text", "location": "text", "record_type": "text",
+        "quantity": "number", "record_date": "date", "lot_number": "text",
+        "expiry_date": "date", "order_id": "text", "shipment_id": "text",
+        "status": "text", "origin": "text", "destination": "text"
+      },
+      "date_formats": { "record_date": "DD-MMM-YYYY", "expiry_date": "DD-MMM-YYYY" }
+    },
+    "site_inventory": {
+      "required_columns": ["Site", "item_id", "On_Hand_Qty", "Weekly_Demand", "Min_Reorder_Point", "Max_Reorder_Point"],
+      "optional_columns": [],
+      "column_types": {
+        "Site": "text", "item_id": "text", "On_Hand_Qty": "number",
+        "Weekly_Demand": "number", "Min_Reorder_Point": "number", "Max_Reorder_Point": "number"
+      },
+      "date_formats": {}
+    },
+    "rtsm_actuals": {
+      "required_columns": ["site_id", "country_code", "event_type", "item_id"],
+      "optional_columns": ["arm_id", "event_date", "quantity", "patient_id", "lot_number", "notes"],
+      "column_types": {
+        "site_id": "text", "country_code": "text", "event_type": "text",
+        "item_id": "text", "arm_id": "text", "event_date": "date",
+        "quantity": "number", "patient_id": "text", "lot_number": "text", "notes": "text"
+      },
+      "date_formats": { "event_date": "DD-MMM-YYYY" }
+    }
+  },
+
+  "assumptions": {
+    "screen_failure_rate_pct": "TODO: e.g. 20",
+    "dropout_rate_pct": "TODO: e.g. 10",
+    "review_period_weeks": 4
+  }
+}

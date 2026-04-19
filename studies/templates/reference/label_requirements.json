@@ -1,0 +1,21 @@
+{
+  "_instructions": "Define label language, content, and format requirements for each country in the study. These are used by the Compliance Manager (CO-02) to validate shipments.",
+
+  "countries": [
+    {
+      "country_code": "TODO: e.g. US",
+      "country_name": "TODO: e.g. United States",
+      "required_languages": ["TODO: e.g. English"],
+      "required_content": [
+        "study_number",
+        "item_description",
+        "storage_conditions",
+        "sponsor_name",
+        "lot_number",
+        "expiry_date",
+        "caution_statement"
+      ],
+      "format_notes": "TODO: e.g. FDA IND labelling requirements apply"
+    }
+  ]
+}

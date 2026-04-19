@@ -1,0 +1,46 @@
+{
+  "depots": [
+    {
+      "depot_id": "Dublin-DEPOT",
+      "depot_name": "Dub",
+      "country": "IE",
+      "capabilities": [
+        "ambient",
+        "cold_chain"
+      ],
+      "description": "Dublin Depot"
+    }
+  ],
+  "manufacturing_sites": [
+    {
+      "site_id": "MFG-SLIGO-55",
+      "site_name": "Sligo Mfg",
+      "country": "IE",
+      "produces": [
+        "ITEM-401",
+        "ITEM-402"
+      ],
+      "description": "Dub packaging"
+    }
+  ],
+  "shipping_lanes": [
+    {
+      "lane_id": "LANE-101",
+      "origin": "MFG-SLIGO-55",
+      "destination": "Dublin-DEPOT",
+      "lead_time_days": 5,
+      "lane_type": "air",
+      "description": "Supplying Ireland"
+    }
+  ],
+  "country_depot_assignments": [
+    {
+      "country_code": "IE",
+      "depot_id": "Dublin-DEPOT"
+    },
+    {
+      "country_code": "BE",
+      "depot_id": "Dublin-DEPOT"
+    }
+  ]
+}

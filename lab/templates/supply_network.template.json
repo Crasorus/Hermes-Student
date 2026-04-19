@@ -1,0 +1,61 @@
+{
+  "_INSTRUCTIONS": "Fill in your supply network using your Scenario Card. Define where drugs are made, where they are stored, and how they move.",
+
+  "depots": [
+    {
+      "_comment": "TODO: A depot is a regional warehouse or distribution centre. Fill in your primary depot.",
+      "depot_id": "TODO — e.g. DP-US",
+      "depot_name": "TODO — e.g. US Distribution Centre",
+      "country": "TODO — 2-letter country code e.g. US",
+      "capabilities": ["TODO — ambient OR refrigerated OR frozen"],
+      "description": "TODO — optional description"
+    },
+    {
+      "_comment": "TODO: Add a second depot if your study ships to two regions (optional — delete this block if only one depot)",
+      "depot_id": "TODO — e.g. DP-EU",
+      "depot_name": "TODO — e.g. EU Distribution Hub",
+      "country": "TODO — e.g. DE",
+      "capabilities": ["TODO — ambient OR refrigerated OR frozen"],
+      "description": ""
+    }
+  ],
+
+  "manufacturing_sites": [
+    {
+      "_comment": "TODO: Where are the investigational drugs manufactured/packaged? Fill in your manufacturing site.",
+      "site_id": "TODO — e.g. MFG-UK",
+      "site_name": "TODO — e.g. Swindon Manufacturing",
+      "country": "TODO — e.g. UK",
+      "produces": [
+        "TODO — item_id of first item e.g. ITEM-001",
+        "TODO — item_id of second item e.g. ITEM-002"
+      ],
+      "description": "TODO — optional description"
+    }
+  ],
+
+  "shipping_lanes": [
+    {
+      "_comment": "TODO: A shipping lane is a regular route from one location to another. Fill in at least one lane from your manufacturer to your depot.",
+      "lane_id": "LANE-001",
+      "origin": "TODO — must match a site_id from manufacturing_sites above e.g. MFG-UK",
+      "destination": "TODO — must match a depot_id from depots above e.g. DP-US",
+      "lead_time_days": "TODO — e.g. 7 (how many days does this shipment typically take?)",
+      "lane_type": "TODO — air OR sea OR road OR courier",
+      "description": "TODO — optional e.g. Weekly air freight"
+    }
+  ],
+
+  "country_depot_assignments": [
+    {
+      "_comment": "TODO: Map each country from study_config.json to the depot that serves it",
+      "country_code": "TODO — must match a country in study_config.json",
+      "depot_id": "TODO — must match a depot_id above"
+    },
+    {
+      "_comment": "TODO: Add one entry per country in your study",
+      "country_code": "TODO — second country code",
+      "depot_id": "TODO — depot that serves this country"
+    }
+  ]
+}

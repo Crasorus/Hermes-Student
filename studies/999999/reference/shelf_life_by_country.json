@@ -1,0 +1,18 @@
+{
+  "_instructions": "Define the minimum remaining shelf life (in months) required at time of shipment for each destination country. Add one entry per country in your study.",
+
+  "countries": [
+    {
+      "country_code": "IE",
+      "country_name": "Ireland",
+      "minimum_remaining_shelf_life_months": "18",
+      "item_overrides": []
+    },
+    {
+      "country_code": "BE",
+      "country_name": "Belgium",
+      "minimum_remaining_shelf_life_months": "6",
+      "item_overrides": []
+    }
+  ]
+}

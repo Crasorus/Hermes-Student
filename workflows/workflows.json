@@ -1,0 +1,164 @@
+{
+  "_comment": "Hermes workflow definitions. Edit this file to add or change workflows. Do not edit runner.py.",
+
+  "routing_signals": [
+    "SIGNIFICANT_DELTA",
+    "MINOR_DELTA",
+    "HALT",
+    "DEMAND_CHANGE",
+    "INVENTORY_CHANGE",
+    "CRITICAL_HOTSPOT",
+    "MATERIAL_CHANGE",
+    "NON_COMPLIANT"
+  ],
+
+  "workflows": {
+    "WF-01": {
+      "name": "Demand Signal Refresh",
+      "steps": [
+        {
+          "agent": "supervisor",
+          "task": "MANDATORY FIRST STEP: Execute SO-00 (Workflow Pre-Flight Verifier) — invoke DI-12: Aggregate Data Query Tool on the study package data files (RTSM actuals, CTMS plan, ERP inventory, study config). Check overall_data_integrity status: if FAIL, halt immediately and report. If WARNING, log and continue with flag. If PASS, continue to next step."
+        },
+        {
+          "agent": "supervisor",
+          "task": "Validate the study package, score data quality, and route the workflow. Output a routing decision: include SIGNIFICANT_DELTA in your output if demand delta meets or exceeds the configured threshold, or MINOR_DELTA if below. Include HALT if validation fails."
+        },
+        {
+          "agent": "demand_analyst",
+          "task": "Parse RTSM actuals and CTMS plan data. Calculate demand deltas by item and country. Compare to baseline. Apply scenario analysis if SIGNIFICANT_DELTA was signalled."
+        },
+        {
+          "agent": "reporting_agent",
+          "task": "Generate the Demand Refresh Summary report based on all prior agent outputs."
+        }
+      ]
+    },
+
+    "WF-02": {
+      "name": "Supply Plan Generation",
+      "steps": [
+        {
+          "agent": "supervisor",
+          "task": "MANDATORY FIRST STEP: Execute SO-00 (Workflow Pre-Flight Verifier) — invoke DI-12: Aggregate Data Query Tool on the study package data files (RTSM actuals, CTMS plan, ERP inventory, study config). Check overall_data_integrity status: if FAIL, halt immediately and report. If WARNING, log and continue with flag. If PASS, continue to next step."
+        },
+        {
+          "agent": "supervisor",
+          "task": "Validate the study package and route the workflow to Supply Plan Generation. Output HALT if validation fails."
+        },
+        {
+          "agent": "supply_analyst",
+          "task": "Load ERP inventory, supply network config, and policies. Calculate stock position, weeks of supply, safety stock status, and reorder needs. Determine order quantities."
+        },
+        {
+          "agent": "logistics_specialist",
+          "task": "Plan shipments: shipping windows, vendor selection, lead times, routing. All constraints must be respected."
+        },
+        {
+          "agent": "compliance_manager",
+          "task": "Validate shelf-life compliance and label requirements for all planned shipments. Flag non-compliant items (advisory — do not halt)."
+        },
+        {
+          "agent": "reporting_agent",
+          "task": "Generate the Supply Plan report, plan scorecard, and shipping requests based on all prior agent outputs."
+        }
+      ]
+    },
+
+    "WF-03": {
+      "name": "Protocol Amendment Impact",
+      "steps": [
+        {
+          "agent": "supervisor",
+          "task": "MANDATORY FIRST STEP: Execute SO-00 (Workflow Pre-Flight Verifier) — invoke DI-12: Aggregate Data Query Tool on the study package data files (RTSM actuals, CTMS plan, ERP inventory, study config). Check overall_data_integrity status: if FAIL, halt immediately and report. If WARNING, log and continue with flag. If PASS, continue to next step."
+        },
+        {
+          "agent": "supervisor",
+          "task": "Validate the study package and route the workflow. Confirm a protocol amendment is the trigger."
+        },
+        {
+          "agent": "compliance_manager",
+          "task": "Assess the protocol amendment impact across demand, supply, labelling, and regulatory areas. Signal DEMAND_CHANGE if demand is affected. Signal INVENTORY_CHANGE if existing inventory is affected."
+        },
+        {
+          "agent": "demand_analyst",
+          "task": "Re-calculate demand based on amended protocol. Include only if DEMAND_CHANGE was signalled.",
+          "condition": { "requires_signal": "DEMAND_CHANGE" }
+        },
+        {
+          "agent": "supply_analyst",
+          "task": "Re-assess inventory position under amended protocol. Include only if INVENTORY_CHANGE was signalled.",
+          "condition": { "requires_signal": "INVENTORY_CHANGE" }
+        },
+        {
+          "agent": "reporting_agent",
+          "task": "Generate the Protocol Amendment Impact Report."
+        }
+      ]
+    },
+
+    "WF-04": {
+      "name": "Routine Monitoring",
+      "steps": [
+        {
+          "agent": "supervisor",
+          "task": "MANDATORY FIRST STEP: Execute SO-00 (Workflow Pre-Flight Verifier) — invoke DI-12: Aggregate Data Query Tool on the study package data files (RTSM actuals, CTMS plan, ERP inventory, study config). Check overall_data_integrity status: if FAIL, halt immediately and report. If WARNING, log and continue with flag. If PASS, continue to next step."
+        },
+        {
+          "agent": "supervisor",
+          "task": "Validate the study package and route the workflow to Routine Monitoring. This is a read-only, non-blocking workflow."
+        },
+        {
+          "agent": "supply_analyst",
+          "task": "Assess current stock position across all sites and depots. Flag any sites below safety stock."
+        },
+        {
+          "agent": "logistics_specialist",
+          "task": "Check pending shipments, lead time adherence, and any logistics issues."
+        },
+        {
+          "agent": "demand_analyst",
+          "task": "Check current demand trend against forecast. Flag any unexpected changes."
+        },
+        {
+          "agent": "insights_analyst",
+          "task": "Analyse all agent inputs. Score risk by site and item. Detect hot spots, anomalies, and shortage probability. Signal CRITICAL_HOTSPOT if escalation is warranted."
+        },
+        {
+          "agent": "reporting_agent",
+          "task": "Generate the Routine Monitoring alert or all-clear summary."
+        }
+      ]
+    },
+
+    "WF-05": {
+      "name": "Supply Plan Execution",
+      "steps": [
+        {
+          "agent": "supervisor",
+          "task": "MANDATORY FIRST STEP: Execute SO-00 (Workflow Pre-Flight Verifier) — invoke DI-12: Aggregate Data Query Tool on the study package data files (RTSM actuals, CTMS plan, ERP inventory, study config). Check overall_data_integrity status: if FAIL, halt immediately and report. If WARNING, log and continue with flag. If PASS, continue to next step."
+        },
+        {
+          "agent": "supervisor",
+          "task": "Validate the study package and confirm human approval of the supply plan is the trigger for execution."
+        },
+        {
+          "agent": "supply_analyst",
+          "task": "Verify current stock position. Flag any material changes since the plan was generated. Signal MATERIAL_CHANGE if re-planning is needed."
+        },
+        {
+          "agent": "compliance_manager",
+          "task": "Run hard-gate compliance checks on each planned shipment. Signal NON_COMPLIANT for any shipment that fails — those shipments are blocked. Compliant shipments proceed."
+        },
+        {
+          "agent": "logistics_specialist",
+          "task": "Confirm lead times, vendor availability, and shipping windows. Generate final shipping requests and tracking references."
+        },
+        {
+          "agent": "reporting_agent",
+          "task": "Generate the Execution Confirmation report and shipping request package."
+        }
+      ]
+    }
+  }
+}

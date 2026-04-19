@@ -1,0 +1,2606 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hermes - Test Data Creation</title>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: #f1f5f9;
+        color: #1e293b;
+        min-height: 100vh;
+      }
+      header {
+        background: #1e3a5f;
+        color: white;
+        padding: 20px 32px;
+      }
+      header h1 {
+        font-size: 1.5rem;
+        font-weight: 600;
+      }
+      header .subtitle {
+        font-size: 0.875rem;
+        color: #94a3b8;
+        margin-top: 4px;
+      }
+      .app-layout {
+        display: flex;
+        min-height: calc(100vh - 88px);
+      }
+      .sidebar {
+        width: 210px;
+        min-width: 210px;
+        background: #1e293b;
+        display: flex;
+        flex-direction: column;
+        padding: 16px 0;
+      }
+      .sidebar-nav-btn {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: none;
+        border: none;
+        padding: 12px 20px;
+        color: #94a3b8;
+        cursor: pointer;
+        font-size: 0.9rem;
+        text-align: left;
+        width: 100%;
+        border-left: 3px solid transparent;
+        transition: all 0.15s;
+      }
+      .sidebar-nav-btn:hover {
+        color: #e2e8f0;
+        background: rgba(255, 255, 255, 0.05);
+      }
+      .sidebar-nav-btn.active {
+        color: #fff;
+        border-left-color: #2563eb;
+        background: rgba(37, 99, 235, 0.15);
+        font-weight: 600;
+      }
+      .step-num {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 22px;
+        height: 22px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        font-size: 0.75rem;
+        font-weight: 700;
+        flex-shrink: 0;
+      }
+      .sidebar-nav-btn.active .step-num {
+        background: #2563eb;
+      }
+      .sidebar-divider {
+        height: 1px;
+        background: rgba(255, 255, 255, 0.1);
+        margin: 12px 16px;
+      }
+      .sidebar-util-btn {
+        display: block;
+        background: none;
+        border: none;
+        padding: 9px 20px;
+        color: #64748b;
+        cursor: pointer;
+        font-size: 0.8rem;
+        text-align: left;
+        width: 100%;
+        transition: color 0.15s;
+      }
+      .sidebar-util-btn:hover {
+        color: #94a3b8;
+      }
+      .sidebar-section-label {
+        font-size: 0.68rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.09em;
+        color: #475569;
+        padding: 8px 20px 4px;
+      }
+      .main-content {
+        flex: 1;
+        overflow: auto;
+      }
+      .tab-content {
+        padding: 32px;
+        max-width: 900px;
+        margin: 0 auto;
+      }
+      .step-header {
+        margin-bottom: 24px;
+      }
+      .step-header h2 {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #1e3a5f;
+        margin-bottom: 4px;
+      }
+      .step-header p {
+        font-size: 0.875rem;
+        color: #64748b;
+      }
+      .hidden {
+        display: none !important;
+      }
+      .section {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        overflow: hidden;
+      }
+      .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 20px;
+        cursor: pointer;
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+        user-select: none;
+      }
+      .section-header h2 {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #334155;
+      }
+      .section-header .toggle {
+        color: #94a3b8;
+        font-size: 1.1rem;
+      }
+      .section-body {
+        padding: 20px;
+      }
+      .section-body.collapsed {
+        display: none;
+      }
+      .form-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 16px;
+      }
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .form-group label {
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: #475569;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .form-group input,
+      .form-group select,
+      .form-group textarea {
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        padding: 8px 12px;
+        font-size: 0.9rem;
+        color: #1e293b;
+        background: #fff;
+        transition: border-color 0.15s;
+      }
+      .form-group input:focus,
+      .form-group select:focus,
+      .form-group textarea:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+      }
+      .form-group textarea {
+        resize: vertical;
+        min-height: 70px;
+      }
+      .card {
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        padding: 14px;
+        margin-bottom: 10px;
+        background: #f8fafc;
+      }
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+      .card-header .card-title {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #475569;
+      }
+      .btn-remove {
+        background: none;
+        border: 1px solid #fca5a5;
+        color: #ef4444;
+        border-radius: 4px;
+        padding: 3px 10px;
+        font-size: 0.8rem;
+        cursor: pointer;
+      }
+      .btn-remove:hover {
+        background: #fef2f2;
+      }
+      .btn-add {
+        background: none;
+        border: 1px dashed #93c5fd;
+        color: #2563eb;
+        border-radius: 6px;
+        padding: 8px 16px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        width: 100%;
+        margin-top: 8px;
+        transition: all 0.15s;
+      }
+      .btn-add:hover {
+        background: #eff6ff;
+        border-style: solid;
+      }
+      .checkboxes {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+      .checkbox-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.875rem;
+        cursor: pointer;
+      }
+      .checkbox-item input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        accent-color: #2563eb;
+        cursor: pointer;
+      }
+      .output-section {
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        border-radius: 8px;
+        padding: 20px;
+        margin-top: 24px;
+      }
+      .output-section h3 {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #1d4ed8;
+        margin-bottom: 16px;
+      }
+      .btn-download {
+        background: #2563eb;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 10px 20px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: background 0.15s;
+      }
+      .btn-download:hover {
+        background: #1d4ed8;
+      }
+      .btn-download.secondary {
+        background: #0f766e;
+      }
+      .btn-download.secondary:hover {
+        background: #0d6b63;
+      }
+      .divider {
+        height: 1px;
+        background: #bfdbfe;
+        margin: 16px 0;
+      }
+      .hint {
+        font-size: 0.8rem;
+        color: #64748b;
+        margin-bottom: 12px;
+      }
+      .toast {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        background: #1e293b;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        opacity: 0;
+        transform: translateY(8px);
+        transition: all 0.3s;
+        pointer-events: none;
+        z-index: 1000;
+      }
+      .toast.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Hermes - Test Data Creation Tool</h1>
+      <p class="subtitle">Create study configuration files and sample data</p>
+    </header>
+
+    <div class="app-layout">
+      <nav class="sidebar">
+        <div class="sidebar-section-label">Create Config</div>
+        <button
+          class="sidebar-nav-btn active"
+          data-tab="study-config"
+          onclick="showTab('study-config', this)"
+        >
+          <span class="step-num">1</span>
+          <span>Study Config</span>
+        </button>
+        <button
+          class="sidebar-nav-btn"
+          data-tab="supply-network"
+          onclick="showTab('supply-network', this)"
+        >
+          <span class="step-num">2</span>
+          <span>Supply Network</span>
+        </button>
+        <button
+          class="sidebar-nav-btn"
+          data-tab="policies"
+          onclick="showTab('policies', this)"
+        >
+          <span class="step-num">3</span>
+          <span>Policies</span>
+        </button>
+        <div class="sidebar-divider"></div>
+        <div class="sidebar-section-label">Load Config</div>
+        <button
+          class="sidebar-util-btn"
+          onclick="document.getElementById('study-config-input').click()"
+        >
+          📂 Load Study Config
+        </button>
+        <button
+          class="sidebar-util-btn"
+          onclick="document.getElementById('supply-network-input').click()"
+        >
+          📂 Load Supply Network
+        </button>
+        <button
+          class="sidebar-util-btn"
+          onclick="document.getElementById('policies-input').click()"
+        >
+          📂 Load Policies
+        </button>
+        <input
+          type="file"
+          id="study-config-input"
+          style="display: none"
+          accept=".json"
+          onchange="loadStudyConfigFile(event)"
+        />
+        <input
+          type="file"
+          id="supply-network-input"
+          style="display: none"
+          accept=".json"
+          onchange="loadSupplyNetworkFile(event)"
+        />
+        <input
+          type="file"
+          id="policies-input"
+          style="display: none"
+          accept=".json"
+          onchange="loadPoliciesFile(event)"
+        />
+        <div class="sidebar-divider"></div>
+        <div class="sidebar-section-label">Create Actuals</div>
+        <button
+          class="sidebar-util-btn"
+          onclick="
+            showTab('actuals', null);
+            document
+              .getElementById('act-ctms')
+              .scrollIntoView({ behavior: 'smooth' });
+          "
+        >
+          📄 ctms_plan.csv
+        </button>
+        <button
+          class="sidebar-util-btn"
+          onclick="
+            showTab('actuals', null);
+            document
+              .getElementById('act-erp')
+              .scrollIntoView({ behavior: 'smooth' });
+          "
+        >
+          📄 erp_inventory.csv
+        </button>
+        <button
+          class="sidebar-util-btn"
+          onclick="
+            showTab('actuals', null);
+            document
+              .getElementById('act-rtsm')
+              .scrollIntoView({ behavior: 'smooth' });
+          "
+        >
+          📄 rtsm_actuals.csv
+        </button>
+        <button
+          class="sidebar-util-btn"
+          onclick="
+            showTab('actuals', null);
+            document
+              .getElementById('act-si')
+              .scrollIntoView({ behavior: 'smooth' });
+          "
+        >
+          📄 site_inventory.csv
+        </button>
+        <div class="sidebar-divider"></div>
+        <div class="sidebar-section-label">View Actuals</div>
+        <a
+          href="data_drop_viewer.html"
+          class="sidebar-util-btn"
+          style="text-decoration: none"
+          >🔍 Data Drop Viewer</a
+        >
+      </nav>
+
+      <div class="main-content">
+        <!-- TAB 1: Study Config -->
+        <div class="tab-content" id="tab-study-config">
+          <div class="step-header">
+            <h2>Step 1 — Study Config</h2>
+            <p>
+              Define your study: treatment arms, drugs, sites, and countries.
+            </p>
+          </div>
+
+          <!-- Study Identity -->
+          <div class="section">
+            <div class="section-header" onclick="toggleSection(this)">
+              <h2>Study Identity</h2>
+              <span class="toggle">&#9660;</span>
+            </div>
+            <div class="section-body">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Study ID</label>
+                  <input type="text" id="sc-study-id" placeholder="STUDY-001" />
+                </div>
+                <div class="form-group">
+                  <label>Study Name</label>
+                  <input
+                    type="text"
+                    id="sc-study-name"
+                    placeholder="Example Phase III Trial"
+                  />
+                </div>
+                <div class="form-group">
+                  <label>Protocol Number</label>
+                  <input
+                    type="text"
+                    id="sc-protocol"
+                    placeholder="PROTO-2024-001"
+                  />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Phase</label>
+                  <input type="text" id="sc-phase" placeholder="Phase III" />
+                </div>
+                <div class="form-group">
+                  <label>Sponsor</label>
+                  <input
+                    type="text"
+                    id="sc-sponsor"
+                    placeholder="Example Pharma Ltd"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Treatment Arms -->
+          <div class="section">
+            <div class="section-header" onclick="toggleSection(this)">
+              <h2>Treatment Arms</h2>
+              <span class="toggle">&#9654;</span>
+            </div>
+            <div class="section-body collapsed">
+              <div id="sc-arms-list"></div>
+              <button
+                class="btn-add"
+                onclick="
+                  addCard('sc-arms-list', armCardTemplate, refreshArmDropdowns)
+                "
+              >
+                + Add Arm
+              </button>
+            </div>
+          </div>
+
+          <!-- Randomisation -->
+          <div class="section">
+            <div class="section-header" onclick="toggleSection(this)">
+              <h2>Randomisation</h2>
+              <span class="toggle">&#9654;</span>
+            </div>
+            <div class="section-body collapsed">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Randomisation Ratio</label>
+                  <input type="text" id="sc-rand-ratio" placeholder="2:1" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Items (Drugs / Kits) -->
+          <div class="section">
+            <div class="section-header" onclick="toggleSection(this)">
+              <h2>Items (Drugs / Kits)</h2>
+              <span class="toggle">&#9654;</span>
+            </div>
+            <div class="section-body collapsed">
+              <div id="sc-items-list"></div>
+              <button
+                class="btn-add"
+                onclick="
+                  addCard(
+                    'sc-items-list',
+                    itemCardTemplate,
+                    refreshArmDropdowns,
+                  )
+                "
+              >
+                + Add Item
+              </button>
+            </div>
+          </div>
+
+          <!-- Countries -->
+          <div class="section">
+            <div class="section-header" onclick="toggleSection(this)">
+              <h2>Countries</h2>
+              <span class="toggle">&#9654;</span>
+            </div>
+            <div class="section-body collapsed">
+              <div id="sc-countries-list"></div>
+              <button
+                class="btn-add"
+                onclick="
+                  addCard(
+                    'sc-countries-list',
+                    countryCardTemplate,
+                    refreshCountryDropdowns,
+                  )
+                "
+              >
+                + Add Country
+              </button>
+            </div>
+          </div>
+
+          <!-- Clinical Sites -->
+          <div class="section">
+            <div class="section-header" onclick="toggleSection(this)">
+              <h2>Clinical Sites</h2>
+              <span class="toggle">&#9654;</span>
+            </div>
+            <div class="section-body collapsed">
+              <div id="sc-sites-list"></div>
+              <button
+                class="btn-add"
+                onclick="
+                  addCard(
+                    'sc-sites-list',
+                    siteCardTemplate,
+                    refreshCountryDropdowns,
+                  )
+                "
+              >
+                + Add Site
+              </button>
+            </div>
+          </div>
+
+          <!-- Thresholds -->
+          <div class="section">
+            <div class="section-header" onclick="toggleSection(this)">
+              <h2>Thresholds</h2>
+              <span class="toggle">&#9654;</span>
+            </div>
+            <div class="section-body collapsed">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Demand Delta %</label>
+                  <input type="number" id="sc-demand-delta" value="10" />
+                </div>
+              </div>
+              <div id="sc-thresholds-list"></div>
+              <button
+                class="btn-add"
+                onclick="
+                  addCard('sc-thresholds-list', thresholdCardTemplate, null)
+                "
+              >
+                + Add Threshold Override
+              </button>
+            </div>
+          </div>
+
+          <!-- Assumptions -->
+          <div class="section">
+            <div class="section-header" onclick="toggleSection(this)">
+              <h2>Assumptions</h2>
+              <span class="toggle">&#9654;</span>
+            </div>
+            <div class="section-body collapsed">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Screen Failure Rate %</label>
+                  <input type="number" id="sc-sfr" value="20" />
+                </div>
+                <div class="form-group">
+                  <label>Dropout Rate %</label>
+                  <input type="number" id="sc-dropout" value="10" />
+                </div>
+                <div class="form-group">
+                  <label>Review Period Weeks</label>
+                  <input type="number" id="sc-review-weeks" value="4" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Output Section -->
+          <div class="output-section">
+            <h3>Download Configuration</h3>
+            <button class="btn-download" onclick="downloadStudyConfig()">
+              &#8595; Download study_config.json
+            </button>
+            <div class="divider"></div>
+            <h3>Generate Sample CTMS Plan CSV</h3>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Start Date</label>
+                <input type="date" id="sc-csv-start" />
+              </div>
+              <div class="form-group">
+                <label>End Date</label>
+                <input type="date" id="sc-csv-end" />
+              </div>
+              <div class="form-group">
+                <label>Planned Enrollment per Site</label>
+                <input type="number" id="sc-csv-enrollment" value="10" />
+              </div>
+            </div>
+            <button class="btn-download secondary" onclick="downloadCtmsCsv()">
+              &#8595; Download ctms_plan.csv
+            </button>
+          </div>
+        </div>
+        <!-- END TAB 1 -->
+
+        <!-- TAB 2: Supply Network -->
+        <div class="tab-content hidden" id="tab-supply-network">
+          <div class="step-header">
+            <h2>Step 2 — Supply Network</h2>
+            <p>
+              Set up depots, manufacturing sites, shipping routes, and country
+              assignments.
+            </p>
+          </div>
+
+          <!-- Depots -->
+          <div class="section">
+            <div class="section-header" onclick="toggleSection(this)">
+              <h2>Depots</h2>
+              <span class="toggle">&#9660;</span>
+            </div>
+            <div class="section-body">
+              <div id="sn-depots-list"></div>
+              <button
+                class="btn-add"
+                onclick="
+                  addCard(
+                    'sn-depots-list',
+                    depotCardTemplate,
+                    refreshDepotDropdowns,
+                  )
+                "
+              >
+                + Add Depot
+              </button>
+            </div>
+          </div>
+
+          <!-- Manufacturing Sites -->
+          <div class="section">
+            <div class="section-header" onclick="toggleSection(this)">
+              <h2>Manufacturing Sites</h2>
+              <span class="toggle">&#9654;</span>
+            </div>
+            <div class="section-body collapsed">
+              <div id="sn-mfg-list"></div>
+              <button
+                class="btn-add"
+                onclick="addCard('sn-mfg-list', mfgCardTemplate, null)"
+              >
+                + Add Manufacturing Site
+              </button>
+            </div>
+          </div>
+
+          <!-- Shipping Lanes -->
+          <div class="section">
+            <div class="section-header" onclick="toggleSection(this)">
+              <h2>Shipping Lanes</h2>
+              <span class="toggle">&#9654;</span>
+            </div>
+            <div class="section-body collapsed">
+              <div id="sn-lanes-list"></div>
+              <button
+                class="btn-add"
+                onclick="addCard('sn-lanes-list', laneCardTemplate, null)"
+              >
+                + Add Shipping Lane
+              </button>
+            </div>
+          </div>
+
+          <!-- Country-Depot Assignments -->
+          <div class="section">
+            <div class="section-header" onclick="toggleSection(this)">
+              <h2>Country&#8211;Depot Assignments</h2>
+              <span class="toggle">&#9654;</span>
+            </div>
+            <div class="section-body collapsed">
+              <p class="hint">
+                Map each country (from Study Config) to a serving depot
+              </p>
+              <div id="sn-country-depot-list"></div>
+              <button
+                class="btn-add"
+                onclick="
+                  addCard(
+                    'sn-country-depot-list',
+                    countryDepotCardTemplate,
+                    refreshAllNetworkDropdowns,
+                  )
+                "
+              >
+                + Add Assignment
+              </button>
+            </div>
+          </div>
+
+          <!-- Output Section -->
+          <div class="output-section">
+            <h3>Download Configuration</h3>
+            <button class="btn-download" onclick="downloadSupplyNetwork()">
+              &#8595; Download supply_network.json
+            </button>
+            <div class="divider"></div>
+            <h3>Generate Sample ERP Inventory CSV</h3>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Data Drop Date</label>
+                <input type="date" id="sn-csv-date" />
+              </div>
+              <div class="form-group">
+                <label>Min Quantity</label>
+                <input type="number" id="sn-csv-min" value="20" />
+              </div>
+              <div class="form-group">
+                <label>Max Quantity</label>
+                <input type="number" id="sn-csv-max" value="100" />
+              </div>
+            </div>
+            <button class="btn-download secondary" onclick="downloadErpCsv()">
+              &#8595; Download erp_inventory.csv
+            </button>
+          </div>
+        </div>
+        <!-- END TAB 2 -->
+
+        <!-- TAB 3: Policies -->
+        <div class="tab-content hidden" id="tab-policies">
+          <div class="step-header">
+            <h2>Step 3 — Policies</h2>
+            <p>
+              Configure safety stock levels, reorder rules, budget, and expiry
+              policies.
+            </p>
+          </div>
+
+          <!-- Safety Stock -->
+          <div class="section">
+            <div class="section-header" onclick="toggleSection(this)">
+              <h2>Safety Stock</h2>
+              <span class="toggle">&#9660;</span>
+            </div>
+            <div class="section-body">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Default Min Weeks</label>
+                  <input type="number" id="pol-ss-min" value="3" />
+                </div>
+              </div>
+              <div id="pol-ss-overrides"></div>
+              <button
+                class="btn-add"
+                onclick="
+                  addCard('pol-ss-overrides', overrideCardTemplate, null)
+                "
+              >
+                + Add Override
+              </button>
+            </div>
+          </div>
+
+          <!-- Reorder Rules -->
+          <div class="section">
+            <div class="section-header" onclick="toggleSection(this)">
+              <h2>Reorder Rules</h2>
+              <span class="toggle">&#9654;</span>
+            </div>
+            <div class="section-body collapsed">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Reorder Point Weeks</label>
+                  <input type="number" id="pol-reorder-weeks" value="8" />
+                </div>
+                <div class="form-group">
+                  <label>Min Order Qty</label>
+                  <input type="number" id="pol-min-order" value="8" />
+                </div>
+                <div class="form-group">
+                  <label>Max Order Qty</label>
+                  <input type="number" id="pol-max-order" value="25" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Maximum Stock Levels -->
+          <div class="section">
+            <div class="section-header" onclick="toggleSection(this)">
+              <h2>Maximum Stock Levels</h2>
+              <span class="toggle">&#9654;</span>
+            </div>
+            <div class="section-body collapsed">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Default Max Weeks</label>
+                  <input type="number" id="pol-max-weeks" value="16" />
+                </div>
+              </div>
+              <div id="pol-maxstock-overrides"></div>
+              <button
+                class="btn-add"
+                onclick="
+                  addCard('pol-maxstock-overrides', overrideCardTemplate, null)
+                "
+              >
+                + Add Override
+              </button>
+            </div>
+          </div>
+
+          <!-- Budget -->
+          <div class="section">
+            <div class="section-header" onclick="toggleSection(this)">
+              <h2>Budget</h2>
+              <span class="toggle">&#9654;</span>
+            </div>
+            <div class="section-body collapsed">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Budget Envelope</label>
+                  <input type="number" id="pol-budget" value="2500000" />
+                </div>
+                <div class="form-group">
+                  <label>Currency</label>
+                  <input type="text" id="pol-currency" value="USD" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Expiry Rules -->
+          <div class="section">
+            <div class="section-header" onclick="toggleSection(this)">
+              <h2>Expiry Rules</h2>
+              <span class="toggle">&#9654;</span>
+            </div>
+            <div class="section-body collapsed">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Min Remaining Shelf Life Months</label>
+                  <input type="number" id="pol-shelf-life" value="6" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Destruction Eligibility</label>
+                <div class="checkboxes" style="margin-top: 8px">
+                  <label class="checkbox-item">
+                    <input type="checkbox" id="pol-dest-expired" checked />
+                    expired
+                  </label>
+                  <label class="checkbox-item">
+                    <input type="checkbox" id="pol-dest-closed" checked />
+                    study_closed
+                  </label>
+                  <label class="checkbox-item">
+                    <input type="checkbox" id="pol-dest-recalled" /> recalled
+                  </label>
+                  <label class="checkbox-item">
+                    <input type="checkbox" id="pol-dest-damaged" checked />
+                    damaged
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SOP References -->
+          <div class="section">
+            <div class="section-header" onclick="toggleSection(this)">
+              <h2>SOP References</h2>
+              <span class="toggle">&#9654;</span>
+            </div>
+            <div class="section-body collapsed">
+              <div id="pol-sops-list"></div>
+              <button
+                class="btn-add"
+                onclick="addCard('pol-sops-list', sopCardTemplate, null)"
+              >
+                + Add SOP
+              </button>
+            </div>
+          </div>
+
+          <!-- Output Section -->
+          <div class="output-section">
+            <h3>Download Configuration</h3>
+            <button class="btn-download" onclick="downloadPolicies()">
+              &#8595; Download policies.json
+            </button>
+            <div class="divider"></div>
+            <h3>Generate Sample RTSM Actuals CSV</h3>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Data Drop Date</label>
+                <input type="date" id="pol-csv-date" />
+              </div>
+              <div class="form-group">
+                <label>Number of Patients (total screened)</label>
+                <input type="number" id="pol-csv-patients" value="50" />
+              </div>
+              <div class="form-group">
+                <label>Screen Failure Rate (%)</label>
+                <input type="number" id="pol-csv-sfr" value="20" />
+              </div>
+            </div>
+            <button class="btn-download secondary" onclick="downloadRtsmCsv()">
+              &#8595; Download rtsm_actuals.csv
+            </button>
+          </div>
+        </div>
+        <!-- END TAB 3 -->
+
+        <!-- TAB 4: Create Actuals -->
+        <div class="tab-content hidden" id="tab-actuals">
+          <div class="step-header">
+            <h2>Create Actuals</h2>
+            <p>
+              Generate sample data drop CSV files. Study Config and Supply
+              Network must be filled in first.
+            </p>
+          </div>
+
+          <div class="output-section" id="act-ctms" style="margin-bottom: 20px">
+            <h3>CTMS Plan — ctms_plan.csv</h3>
+            <p class="hint">
+              Enrollment and visit schedule by site. Requires sites defined in
+              Step 1.
+            </p>
+            <div class="form-row" style="margin-top: 12px">
+              <div class="form-group">
+                <label>Start Date</label>
+                <input type="date" id="act-ctms-start" />
+              </div>
+              <div class="form-group">
+                <label>End Date</label>
+                <input type="date" id="act-ctms-end" />
+              </div>
+              <div class="form-group">
+                <label>Planned Enrollment per Site</label>
+                <input type="number" id="act-ctms-enrollment" value="10" />
+              </div>
+            </div>
+            <button class="btn-download" onclick="downloadCtmsCsvFromActuals()">
+              &#8595; Download ctms_plan.csv
+            </button>
+          </div>
+
+          <div class="output-section" id="act-erp" style="margin-bottom: 20px">
+            <h3>ERP Inventory — erp_inventory.csv</h3>
+            <p class="hint">
+              Stock on hand, production orders, and shipments in transit.
+              Requires items, depots, and lanes defined in Steps 1–2.
+            </p>
+            <div class="form-row" style="margin-top: 12px">
+              <div class="form-group">
+                <label>Data Drop Date</label>
+                <input type="date" id="act-erp-date" />
+              </div>
+              <div class="form-group">
+                <label>Min Quantity</label>
+                <input type="number" id="act-erp-min" value="20" />
+              </div>
+              <div class="form-group">
+                <label>Max Quantity</label>
+                <input type="number" id="act-erp-max" value="100" />
+              </div>
+            </div>
+            <button class="btn-download" onclick="downloadErpCsvFromActuals()">
+              &#8595; Download erp_inventory.csv
+            </button>
+          </div>
+
+          <div class="output-section" id="act-rtsm">
+            <h3>RTSM Actuals — rtsm_actuals.csv</h3>
+            <p class="hint">
+              Randomisation, dispensing, screen failures, and site inventory.
+              Requires sites, arms, and items defined in Step 1.
+            </p>
+            <div class="form-row" style="margin-top: 12px">
+              <div class="form-group">
+                <label>Data Drop Date</label>
+                <input type="date" id="act-rtsm-date" />
+              </div>
+              <div class="form-group">
+                <label>Number of Patients (total screened)</label>
+                <input type="number" id="act-rtsm-patients" value="50" />
+              </div>
+              <div class="form-group">
+                <label>Screen Failure Rate (%)</label>
+                <input type="number" id="act-rtsm-sfr" value="20" />
+              </div>
+            </div>
+            <button class="btn-download" onclick="downloadRtsmCsvFromActuals()">
+              &#8595; Download rtsm_actuals.csv
+            </button>
+          </div>
+
+          <div class="output-section" id="act-si">
+            <h3>Site Inventory — site_inventory.csv</h3>
+            <p class="hint">Current on-hand snapshot and demand rates by site and item. Requires sites and items defined in Step 1.</p>
+            <div class="form-row" style="margin-top: 12px">
+              <div class="form-group">
+                <label>Data Drop Date</label>
+                <input type="date" id="act-si-date" />
+              </div>
+              <div class="form-group">
+                <label>On-Hand Qty Min</label>
+                <input type="number" id="act-si-min-qty" value="5" />
+              </div>
+              <div class="form-group">
+                <label>On-Hand Qty Max</label>
+                <input type="number" id="act-si-max-qty" value="30" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Weekly Demand Min</label>
+                <input type="number" id="act-si-min-demand" value="1" />
+              </div>
+              <div class="form-group">
+                <label>Weekly Demand Max</label>
+                <input type="number" id="act-si-max-demand" value="5" />
+              </div>
+              <div class="form-group">
+                <label>Min Reorder Point</label>
+                <input type="number" id="act-si-min-reorder" value="3" />
+              </div>
+              <div class="form-group">
+                <label>Max Reorder Point</label>
+                <input type="number" id="act-si-max-reorder" value="12" />
+              </div>
+            </div>
+            <button class="btn-download" onclick="downloadSiteInventoryCsv()">
+              &#8595; Download site_inventory.csv
+            </button>
+          </div>
+        </div>
+        <!-- END TAB 4 -->
+      </div>
+      <!-- end main-content -->
+    </div>
+    <!-- end app-layout -->
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+      // ─── Date Utilities ─────────────────────────────────────────────────────────
+
+      const MONTH_ABBR = [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ];
+
+      function formatDateDMY(dateOrStr) {
+        // Accepts a Date object or a YYYY-MM-DD string. Returns DD-MMM-YYYY (e.g. 15-Mar-2026).
+        const d =
+          dateOrStr instanceof Date
+            ? dateOrStr
+            : new Date(dateOrStr + "T00:00:00");
+        const dd = String(d.getDate()).padStart(2, "0");
+        const mmm = MONTH_ABBR[d.getMonth()];
+        const yyyy = d.getFullYear();
+        return `${dd}-${mmm}-${yyyy}`;
+      }
+
+      // ─── Shared Utilities ───────────────────────────────────────────────────────
+
+      function showTab(name, btn) {
+        document
+          .querySelectorAll(".tab-content")
+          .forEach((el) => el.classList.add("hidden"));
+        document
+          .querySelectorAll(".sidebar-nav-btn")
+          .forEach((el) => el.classList.remove("active"));
+        document.getElementById("tab-" + name).classList.remove("hidden");
+        if (btn) btn.classList.add("active");
+      }
+
+      function toggleSection(header) {
+        const body = header.nextElementSibling;
+        const toggle = header.querySelector(".toggle");
+        body.classList.toggle("collapsed");
+        toggle.textContent = body.classList.contains("collapsed")
+          ? "\u25B6"
+          : "\u25BC";
+      }
+
+      function downloadFile(filename, content, type = "application/json") {
+        const blob = new Blob([content], { type });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        a.style.display = "none";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 100);
+        showToast("Downloaded " + filename);
+      }
+
+      function showToast(msg) {
+        const t = document.getElementById("toast");
+        t.textContent = msg;
+        t.classList.add("show");
+        setTimeout(() => t.classList.remove("show"), 2500);
+      }
+
+      function val(id) {
+        const el = document.getElementById(id);
+        return el ? el.value : "";
+      }
+      function num(id) {
+        return parseFloat(val(id)) || 0;
+      }
+
+      function addCard(containerId, templateFn, afterCallback) {
+        const container = document.getElementById(containerId);
+        if (!container) {
+          showToast("Error: container not found");
+          return;
+        }
+        const idx = container.children.length;
+        const div = document.createElement("div");
+        div.className = "card";
+        div.innerHTML = templateFn(idx);
+        container.appendChild(div);
+        if (afterCallback) afterCallback();
+      }
+
+      function removeCard(btn, afterCallback) {
+        const card = btn.closest(".card");
+        if (!card) return;
+        card.remove();
+        if (afterCallback) afterCallback();
+      }
+
+      function getCards(containerId) {
+        return Array.from(
+          document
+            .getElementById(containerId)
+            .querySelectorAll(":scope > .card"),
+        );
+      }
+
+      // ─── Card Templates — Study Config ─────────────────────────────────────────
+
+      function armCardTemplate(i) {
+        return `<div class="card-header">
+        <span class="card-title">Arm ${i + 1}</span>
+        <button class="btn-remove" onclick="removeCard(this, refreshArmDropdowns)">Remove</button>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Arm ID</label><input type="text" class="arm-id" placeholder="ARM-A" oninput="refreshArmDropdowns()"></div>
+        <div class="form-group"><label>Arm Name</label><input type="text" class="arm-name" placeholder="Active Treatment"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Description</label><textarea class="arm-desc" rows="2" placeholder="Treatment description"></textarea></div>
+      </div>`;
+      }
+
+      function itemCardTemplate(i) {
+        return `<div class="card-header">
+        <span class="card-title">Item ${i + 1}</span>
+        <button class="btn-remove" onclick="removeCard(this, null)">Remove</button>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Item ID</label><input type="text" class="item-id" placeholder="ITEM-001"></div>
+        <div class="form-group"><label>Item Name</label><input type="text" class="item-name" placeholder="Study Drug A"></div>
+        <div class="form-group"><label>Arm</label><select class="item-arm"><option value="">-- select arm --</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Pack Size</label><input type="number" class="item-pack-size" value="1"></div>
+        <div class="form-group"><label>Units per Pack</label><input type="number" class="item-units" value="28"></div>
+        <div class="form-group"><label>Temperature</label><select class="item-temp">
+          <option value="2-8\u00B0C">2-8\u00B0C (Cold Chain)</option>
+          <option value="ambient" selected>Ambient</option>
+          <option value="-20\u00B0C">-20\u00B0C (Frozen)</option>
+        </select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Description</label><textarea class="item-desc" rows="2" placeholder="Item description"></textarea></div>
+      </div>`;
+      }
+
+      function countryCardTemplate(i) {
+        return `<div class="card-header">
+        <span class="card-title">Country ${i + 1}</span>
+        <button class="btn-remove" onclick="removeCard(this, refreshCountryDropdowns)">Remove</button>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Country Code</label><input type="text" class="country-code" placeholder="US" maxlength="3" oninput="refreshCountryDropdowns()"></div>
+        <div class="form-group"><label>Country Name</label><input type="text" class="country-name" placeholder="United States"></div>
+      </div>`;
+      }
+
+      function siteCardTemplate(i) {
+        return `<div class="card-header">
+        <span class="card-title">Site ${i + 1}</span>
+        <button class="btn-remove" onclick="removeCard(this, null)">Remove</button>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Site ID</label><input type="text" class="site-id" placeholder="SITE-001"></div>
+        <div class="form-group"><label>Site Name</label><input type="text" class="site-name" placeholder="Example Medical Centre"></div>
+        <div class="form-group"><label>Country</label><select class="site-country"><option value="">-- select --</option></select></div>
+      </div>`;
+      }
+
+      function thresholdCardTemplate(i) {
+        return `<div class="card-header">
+        <span class="card-title">Override ${i + 1}</span>
+        <button class="btn-remove" onclick="removeCard(this, null)">Remove</button>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Scope</label><select class="thr-scope"><option value="item_id">Item</option><option value="country_code">Country</option></select></div>
+        <div class="form-group"><label>ID / Code</label><input type="text" class="thr-id" placeholder="ITEM-001"></div>
+        <div class="form-group"><label>Threshold (%)</label><input type="number" class="thr-pct" value="15"></div>
+      </div>`;
+      }
+
+      // ─── Dropdown Refresh Helpers ───────────────────────────────────────────────
+
+      function refreshArmDropdowns() {
+        const arms = getCards("sc-arms-list")
+          .map((c) => c.querySelector(".arm-id").value)
+          .filter(Boolean);
+        document.querySelectorAll(".item-arm").forEach((sel) => {
+          const cur = sel.value;
+          sel.innerHTML =
+            '<option value="">-- select arm --</option>' +
+            arms
+              .map(
+                (a) =>
+                  `<option value="${a}"${a === cur ? " selected" : ""}>${a}</option>`,
+              )
+              .join("");
+        });
+      }
+
+      function refreshAllNetworkDropdowns() {
+        refreshCountryDropdowns();
+        refreshDepotDropdowns();
+      }
+
+      function refreshCountryDropdowns() {
+        const countries = getCards("sc-countries-list")
+          .map((c) => ({
+            code: c.querySelector(".country-code").value,
+            name: c.querySelector(".country-name").value,
+          }))
+          .filter((c) => c.code);
+
+        const opts =
+          '<option value="">-- select --</option>' +
+          countries
+            .map(
+              (c) =>
+                `<option value="${c.code}">${c.code} \u2014 ${c.name}</option>`,
+            )
+            .join("");
+
+        document.querySelectorAll(".site-country").forEach((sel) => {
+          const cur = sel.value;
+          sel.innerHTML = opts;
+          sel.value = cur;
+        });
+        document.querySelectorAll(".cd-country").forEach((sel) => {
+          const cur = sel.value;
+          sel.innerHTML = opts;
+          sel.value = cur;
+        });
+      }
+
+      function refreshDepotDropdowns() {
+        const depots = getCards("sn-depots-list")
+          .map((c) => c.querySelector(".depot-id").value)
+          .filter(Boolean);
+        document.querySelectorAll(".cd-depot").forEach((sel) => {
+          const cur = sel.value;
+          sel.innerHTML =
+            '<option value="">-- select depot --</option>' +
+            depots
+              .map(
+                (d) =>
+                  `<option value="${d}"${d === cur ? " selected" : ""}>${d}</option>`,
+              )
+              .join("");
+        });
+      }
+
+      // ─── Build + Download — Study Config ───────────────────────────────────────
+
+      function buildStudyConfig() {
+        const arms = getCards("sc-arms-list").map((c) => ({
+          arm_id: c.querySelector(".arm-id").value,
+          arm_name: c.querySelector(".arm-name").value,
+          description: c.querySelector(".arm-desc").value,
+        }));
+
+        const items = getCards("sc-items-list").map((c) => ({
+          item_id: c.querySelector(".item-id").value,
+          item_name: c.querySelector(".item-name").value,
+          arm: c.querySelector(".item-arm").value,
+          pack_size: parseFloat(c.querySelector(".item-pack-size").value) || 1,
+          units_per_pack:
+            parseFloat(c.querySelector(".item-units").value) || 28,
+          temperature_requirement: c.querySelector(".item-temp").value,
+          description: c.querySelector(".item-desc").value,
+        }));
+
+        const countries = getCards("sc-countries-list").map((c) => ({
+          country_code: c.querySelector(".country-code").value,
+          country_name: c.querySelector(".country-name").value,
+        }));
+
+        const sites = getCards("sc-sites-list").map((c) => ({
+          site_id: c.querySelector(".site-id").value,
+          site_name: c.querySelector(".site-name").value,
+          country_code: c.querySelector(".site-country").value,
+        }));
+
+        const thresholdOverrides = getCards("sc-thresholds-list").map((c) => {
+          const scope = c.querySelector(".thr-scope").value;
+          return {
+            [scope]: c.querySelector(".thr-id").value,
+            threshold_pct: parseFloat(c.querySelector(".thr-pct").value) || 15,
+          };
+        });
+
+        return {
+          study_identity: {
+            study_id: val("sc-study-id"),
+            study_name: val("sc-study-name"),
+            protocol_number: val("sc-protocol"),
+            phase: val("sc-phase"),
+            sponsor: val("sc-sponsor"),
+          },
+          treatment_arms: arms,
+          randomisation_ratio: val("sc-rand-ratio") || "1:1",
+          items,
+          thresholds: {
+            demand_delta_significance_pct: num("sc-demand-delta") || 10,
+            overrides: thresholdOverrides,
+          },
+          countries,
+          sites,
+          required_files: {
+            files: [
+              {
+                file_name: "rtsm_actuals.csv",
+                location: "data_drops/{data_drop_date}/",
+                criticality: "critical",
+              },
+              {
+                file_name: "erp_inventory.csv",
+                location: "data_drops/{data_drop_date}/",
+                criticality: "critical",
+              },
+              {
+                file_name: "ctms_plan.csv",
+                location: "data_drops/{data_drop_date}/",
+                criticality: "critical",
+              },
+            ],
+          },
+          schemas: {
+            ctms_plan: {
+              required_columns: [
+                "site_id",
+                "country_code",
+                "record_type",
+                "record_date",
+              ],
+              optional_columns: [
+                "planned_enrollment",
+                "actual_enrollment",
+                "site_status",
+                "visit_type",
+                "visit_window_days",
+              ],
+              column_types: {
+                site_id: "text",
+                country_code: "text",
+                record_type: "text",
+                record_date: "date",
+                planned_enrollment: "number",
+                actual_enrollment: "number",
+                site_status: "text",
+                visit_type: "text",
+                visit_window_days: "number",
+              },
+            },
+            erp_inventory: {
+              required_columns: [
+                "item_id",
+                "location",
+                "record_type",
+                "quantity",
+                "record_date",
+              ],
+              optional_columns: [
+                "lot_number",
+                "expiry_date",
+                "order_id",
+                "shipment_id",
+                "status",
+                "origin",
+                "destination",
+              ],
+              column_types: {
+                item_id: "text",
+                location: "text",
+                record_type: "text",
+                quantity: "number",
+                record_date: "date",
+                lot_number: "text",
+                expiry_date: "date",
+                order_id: "text",
+                shipment_id: "text",
+                status: "text",
+                origin: "text",
+                destination: "text",
+              },
+            },
+            rtsm_actuals: {
+              required_columns: [
+                "site_id",
+                "country_code",
+                "event_type",
+                "item_id",
+              ],
+              optional_columns: [
+                "arm_id",
+                "event_date",
+                "quantity",
+                "patient_id",
+                "lot_number",
+                "notes",
+              ],
+              column_types: {
+                site_id: "text",
+                country_code: "text",
+                event_type: "text",
+                item_id: "text",
+                arm_id: "text",
+                event_date: "date",
+                quantity: "number",
+                patient_id: "text",
+                lot_number: "text",
+                notes: "text",
+              },
+            },
+          },
+          assumptions: {
+            screen_failure_rate_pct: num("sc-sfr") || 20,
+            dropout_rate_pct: num("sc-dropout") || 10,
+            review_period_weeks: num("sc-review-weeks") || 4,
+          },
+        };
+      }
+
+      function downloadStudyConfig() {
+        downloadFile(
+          "study_config.json",
+          JSON.stringify(buildStudyConfig(), null, 2),
+        );
+      }
+
+      function downloadCtmsCsv() {
+        const sites = getCards("sc-sites-list")
+          .map((c) => ({
+            site_id: c.querySelector(".site-id").value,
+            country_code: c.querySelector(".site-country").value,
+          }))
+          .filter((s) => s.site_id);
+
+        if (!sites.length) {
+          showToast("Add at least one site first");
+          return;
+        }
+
+        const startDate = formatDateDMY(
+          val("sc-csv-start") || new Date().toISOString().slice(0, 10),
+        );
+        const endDate = formatDateDMY(
+          val("sc-csv-end") ||
+            val("sc-csv-start") ||
+            new Date().toISOString().slice(0, 10),
+        );
+        const enrollment = parseInt(val("sc-csv-enrollment")) || 10;
+
+        const visitTypes = [
+          { visit_type: "screening", visit_window_days: 0 },
+          { visit_type: "baseline", visit_window_days: 7 },
+          { visit_type: "week_4", visit_window_days: 35 },
+          { visit_type: "week_8", visit_window_days: 63 },
+          { visit_type: "week_12", visit_window_days: 91 },
+          { visit_type: "end_of_treatment", visit_window_days: 180 },
+        ];
+
+        const headers = [
+          "site_id",
+          "country_code",
+          "record_type",
+          "record_date",
+          "planned_enrollment",
+          "actual_enrollment",
+          "site_status",
+          "visit_type",
+          "visit_window_days",
+        ];
+        const rows = [headers.join(",")];
+
+        for (const s of sites) {
+          rows.push(
+            [
+              s.site_id,
+              s.country_code,
+              "enrollment_plan",
+              endDate,
+              enrollment,
+              0,
+              "",
+              "",
+              "",
+            ].join(","),
+          );
+          rows.push(
+            [
+              s.site_id,
+              s.country_code,
+              "site_info",
+              startDate,
+              "",
+              "",
+              "active",
+              "",
+              "",
+            ].join(","),
+          );
+          for (const v of visitTypes) {
+            rows.push(
+              [
+                s.site_id,
+                s.country_code,
+                "visit_schedule",
+                startDate,
+                "",
+                "",
+                "",
+                v.visit_type,
+                v.visit_window_days,
+              ].join(","),
+            );
+          }
+        }
+
+        downloadFile("ctms_plan.csv", rows.join("\n"), "text/csv");
+      }
+
+      // ─── Card Templates — Supply Network ───────────────────────────────────────
+
+      function depotCardTemplate(i) {
+        return `<div class="card-header">
+        <span class="card-title">Depot ${i + 1}</span>
+        <button class="btn-remove" onclick="removeCard(this, refreshDepotDropdowns)">Remove</button>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Depot ID</label><input type="text" class="depot-id" placeholder="DEPOT-EU" oninput="refreshDepotDropdowns()"></div>
+        <div class="form-group"><label>Depot Name</label><input type="text" class="depot-name" placeholder="EU Distribution Centre"></div>
+        <div class="form-group"><label>Country Code</label><input type="text" class="depot-country" placeholder="DE" maxlength="3"></div>
+      </div>
+      <div class="form-group" style="margin-bottom:8px"><label>Capabilities</label>
+        <div class="checkboxes">
+          <label class="checkbox-item"><input type="checkbox" class="cap-ambient" checked> Ambient</label>
+          <label class="checkbox-item"><input type="checkbox" class="cap-cold"> Cold Chain</label>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Description</label><textarea class="depot-desc" rows="2" placeholder="Depot description"></textarea></div>
+      </div>`;
+      }
+
+      function mfgCardTemplate(i) {
+        return `<div class="card-header">
+        <span class="card-title">Mfg Site ${i + 1}</span>
+        <button class="btn-remove" onclick="removeCard(this, null)">Remove</button>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Site ID</label><input type="text" class="mfg-id" placeholder="MFG-001"></div>
+        <div class="form-group"><label>Site Name</label><input type="text" class="mfg-name" placeholder="Example CMO"></div>
+        <div class="form-group"><label>Country Code</label><input type="text" class="mfg-country" placeholder="CH" maxlength="3"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Produces (Item IDs, comma-separated)</label><input type="text" class="mfg-produces" placeholder="ITEM-001, ITEM-002"></div>
+        <div class="form-group"><label>Description</label><textarea class="mfg-desc" rows="2" placeholder="CMO description"></textarea></div>
+      </div>`;
+      }
+
+      function laneCardTemplate(i) {
+        return `<div class="card-header">
+        <span class="card-title">Lane ${i + 1}</span>
+        <button class="btn-remove" onclick="removeCard(this, null)">Remove</button>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Lane ID</label><input type="text" class="lane-id" placeholder="LANE-001"></div>
+        <div class="form-group"><label>Origin</label><input type="text" class="lane-origin" placeholder="MFG-001"></div>
+        <div class="form-group"><label>Destination</label><input type="text" class="lane-dest" placeholder="DEPOT-EU"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Lead Time (Days)</label><input type="number" class="lane-lead" value="14"></div>
+        <div class="form-group"><label>Lane Type</label><select class="lane-type"><option value="air">Air</option><option value="ground">Ground</option></select></div>
+        <div class="form-group"><label>Description</label><textarea class="lane-desc" rows="2" placeholder="Route description"></textarea></div>
+      </div>`;
+      }
+
+      function countryDepotCardTemplate(i) {
+        return `<div class="card-header">
+        <span class="card-title">Assignment ${i + 1}</span>
+        <button class="btn-remove" onclick="removeCard(this, null)">Remove</button>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Country</label><select class="cd-country"><option value="">-- select country --</option></select></div>
+        <div class="form-group"><label>Depot</label><select class="cd-depot"><option value="">-- select depot --</option></select></div>
+      </div>`;
+      }
+
+      // ─── Build + Download — Supply Network ─────────────────────────────────────
+
+      function buildSupplyNetwork() {
+        const depots = getCards("sn-depots-list").map((c) => {
+          const caps = [];
+          if (c.querySelector(".cap-ambient").checked) caps.push("ambient");
+          if (c.querySelector(".cap-cold").checked) caps.push("cold_chain");
+          return {
+            depot_id: c.querySelector(".depot-id").value,
+            depot_name: c.querySelector(".depot-name").value,
+            country: c.querySelector(".depot-country").value,
+            capabilities: caps,
+            description: c.querySelector(".depot-desc").value,
+          };
+        });
+
+        const manufacturing_sites = getCards("sn-mfg-list").map((c) => ({
+          site_id: c.querySelector(".mfg-id").value,
+          site_name: c.querySelector(".mfg-name").value,
+          country: c.querySelector(".mfg-country").value,
+          produces: c
+            .querySelector(".mfg-produces")
+            .value.split(",")
+            .map((s) => s.trim())
+            .filter(Boolean),
+          description: c.querySelector(".mfg-desc").value,
+        }));
+
+        const shipping_lanes = getCards("sn-lanes-list").map((c) => ({
+          lane_id: c.querySelector(".lane-id").value,
+          origin: c.querySelector(".lane-origin").value,
+          destination: c.querySelector(".lane-dest").value,
+          lead_time_days: parseFloat(c.querySelector(".lane-lead").value) || 14,
+          lane_type: c.querySelector(".lane-type").value,
+          description: c.querySelector(".lane-desc").value,
+        }));
+
+        const country_depot_assignments = getCards("sn-country-depot-list").map(
+          (c) => ({
+            country_code: c.querySelector(".cd-country").value,
+            depot_id: c.querySelector(".cd-depot").value,
+          }),
+        );
+
+        return {
+          depots,
+          manufacturing_sites,
+          shipping_lanes,
+          country_depot_assignments,
+        };
+      }
+
+      function downloadSupplyNetwork() {
+        downloadFile(
+          "supply_network.json",
+          JSON.stringify(buildSupplyNetwork(), null, 2),
+        );
+      }
+
+      function downloadErpCsv() {
+        const items = getCards("sc-items-list")
+          .map((c) => c.querySelector(".item-id").value)
+          .filter(Boolean);
+        const depots = getCards("sn-depots-list")
+          .map((c) => c.querySelector(".depot-id").value)
+          .filter(Boolean);
+        const mfgSites = getCards("sn-mfg-list").map((c) => ({
+          id: c.querySelector(".mfg-id").value,
+          produces: c
+            .querySelector(".mfg-produces")
+            .value.split(",")
+            .map((s) => s.trim())
+            .filter(Boolean),
+        }));
+        const lanes = getCards("sn-lanes-list").map((c) => ({
+          origin: c.querySelector(".lane-origin").value,
+          dest: c.querySelector(".lane-dest").value,
+        }));
+
+        if (!items.length || !depots.length) {
+          showToast("Add items (Study Config tab) and depots first");
+          return;
+        }
+
+        const dropDateRaw =
+          val("sn-csv-date") || new Date().toISOString().slice(0, 10);
+        const dropDate = formatDateDMY(dropDateRaw);
+        const minQ = parseInt(val("sn-csv-min")) || 20;
+        const maxQ = parseInt(val("sn-csv-max")) || 100;
+        const randQ = () =>
+          Math.floor(Math.random() * (maxQ - minQ + 1)) + minQ;
+        const expiryDate = new Date(dropDateRaw + "T00:00:00");
+        expiryDate.setMonth(expiryDate.getMonth() + 18);
+        const expiry = formatDateDMY(expiryDate);
+
+        const headers = [
+          "item_id",
+          "location",
+          "record_type",
+          "quantity",
+          "record_date",
+          "lot_number",
+          "expiry_date",
+          "order_id",
+          "shipment_id",
+          "status",
+          "origin",
+          "destination",
+        ];
+        const rows = [headers.join(",")];
+
+        let lotN = 1,
+          ordN = 1,
+          shipN = 1;
+
+        for (const item of items) {
+          for (const depot of depots) {
+            rows.push(
+              [
+                item,
+                depot,
+                "stock_on_hand",
+                randQ(),
+                dropDate,
+                `LOT-${String(lotN++).padStart(3, "0")}`,
+                expiry,
+                "",
+                "",
+                "available",
+                "",
+                "",
+              ].join(","),
+            );
+          }
+        }
+
+        for (const mfg of mfgSites) {
+          for (const item of mfg.produces) {
+            if (items.includes(item)) {
+              rows.push(
+                [
+                  item,
+                  mfg.id,
+                  "production_order",
+                  randQ(),
+                  dropDate,
+                  "",
+                  "",
+                  `ORD-${String(ordN++).padStart(3, "0")}`,
+                  "",
+                  "in_production",
+                  "",
+                  "",
+                ].join(","),
+              );
+            }
+          }
+        }
+
+        for (const lane of lanes) {
+          for (const item of items) {
+            rows.push(
+              [
+                item,
+                lane.origin,
+                "shipment_in_transit",
+                randQ(),
+                dropDate,
+                `LOT-${String(lotN++).padStart(3, "0")}`,
+                expiry,
+                "",
+                `SHIP-${String(shipN++).padStart(3, "0")}`,
+                "in_transit",
+                lane.origin,
+                lane.dest,
+              ].join(","),
+            );
+          }
+        }
+
+        downloadFile("erp_inventory.csv", rows.join("\n"), "text/csv");
+      }
+
+      // ─── Card Templates — Policies ─────────────────────────────────────────────
+
+      function overrideCardTemplate(i) {
+        return `<div class="card-header">
+        <span class="card-title">Override ${i + 1}</span>
+        <button class="btn-remove" onclick="removeCard(this, null)">Remove</button>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Scope</label><select class="ovr-scope"><option value="depot_id">Depot</option><option value="country_code">Country</option><option value="item_id">Item</option></select></div>
+        <div class="form-group"><label>ID / Code</label><input type="text" class="ovr-id" placeholder="DEPOT-EU"></div>
+        <div class="form-group"><label>Weeks</label><input type="number" class="ovr-weeks" value="4"></div>
+      </div>`;
+      }
+
+      function sopCardTemplate(i) {
+        return `<div class="card-header">
+        <span class="card-title">SOP ${i + 1}</span>
+        <button class="btn-remove" onclick="removeCard(this, null)">Remove</button>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>SOP ID</label><input type="text" class="sop-id" placeholder="SOP-001"></div>
+        <div class="form-group"><label>SOP Name</label><input type="text" class="sop-name" placeholder="Clinical Supply Ordering"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Description</label><textarea class="sop-desc" rows="2" placeholder="SOP description"></textarea></div>
+      </div>`;
+      }
+
+      function getOverrides(containerId) {
+        return getCards(containerId).map((c) => {
+          const scope = c.querySelector(".ovr-scope").value;
+          return {
+            [scope]: c.querySelector(".ovr-id").value,
+            weeks: parseFloat(c.querySelector(".ovr-weeks").value) || 4,
+          };
+        });
+      }
+
+      // ─── Build + Download — Policies ───────────────────────────────────────────
+
+      function buildPolicies() {
+        return {
+          safety_stock: {
+            default_minimum_weeks: num("pol-ss-min") || 3,
+            overrides: getOverrides("pol-ss-overrides"),
+          },
+          reorder_rules: {
+            reorder_point_weeks: num("pol-reorder-weeks") || 8,
+            minimum_order_quantity: num("pol-min-order") || 8,
+            maximum_order_quantity: num("pol-max-order") || 25,
+          },
+          maximum_stock_levels: {
+            default_maximum_weeks: num("pol-max-weeks") || 16,
+            overrides: getOverrides("pol-maxstock-overrides"),
+          },
+          budget: {
+            budget_envelope: num("pol-budget") || 2500000,
+            currency: val("pol-currency") || "USD",
+          },
+          expiry_rules: {
+            minimum_remaining_shelf_life_months: num("pol-shelf-life") || 6,
+            destruction_eligibility: {
+              expired_stock:
+                document.getElementById("pol-dest-expired").checked,
+              study_closed_stock:
+                document.getElementById("pol-dest-closed").checked,
+              recalled_stock:
+                document.getElementById("pol-dest-recalled").checked,
+              damaged_stock:
+                document.getElementById("pol-dest-damaged").checked,
+            },
+          },
+          sop_references: getCards("pol-sops-list").map((c) => ({
+            sop_id: c.querySelector(".sop-id").value,
+            sop_name: c.querySelector(".sop-name").value,
+            description: c.querySelector(".sop-desc").value,
+          })),
+        };
+      }
+
+      function downloadPolicies() {
+        downloadFile("policies.json", JSON.stringify(buildPolicies(), null, 2));
+      }
+
+      function downloadRtsmCsv() {
+        const sites = getCards("sc-sites-list")
+          .map((c) => ({
+            site_id: c.querySelector(".site-id").value,
+            country_code: c.querySelector(".site-country").value,
+          }))
+          .filter((s) => s.site_id);
+
+        const arms = getCards("sc-arms-list")
+          .map((c) => c.querySelector(".arm-id").value)
+          .filter(Boolean);
+        const items = getCards("sc-items-list")
+          .map((c) => ({
+            item_id: c.querySelector(".item-id").value,
+            arm: c.querySelector(".item-arm").value,
+          }))
+          .filter((i) => i.item_id);
+
+        if (!sites.length || !arms.length) {
+          showToast("Add sites and arms in Study Config first");
+          return;
+        }
+
+        const dropDate = formatDateDMY(
+          val("pol-csv-date") || new Date().toISOString().slice(0, 10),
+        );
+        const totalPatients = parseInt(val("pol-csv-patients")) || 50;
+        const sfrPct = parseFloat(val("pol-csv-sfr")) || 20;
+
+        const screenFailures = Math.floor((totalPatients * sfrPct) / 100);
+        const randomised = totalPatients - screenFailures;
+
+        const ratioStr = val("sc-rand-ratio") || "1:1";
+        const ratioParts = ratioStr
+          .split(":")
+          .map(Number)
+          .filter((n) => !isNaN(n) && n > 0);
+        const ratioTotal = ratioParts.reduce((a, b) => a + b, 0) || arms.length;
+        if (ratioParts.length > 0 && ratioParts.length !== arms.length) {
+          showToast(
+            `Warning: ${ratioParts.length} ratio parts but ${arms.length} arms — check randomisation ratio`,
+          );
+        }
+
+        const headers = [
+          "site_id",
+          "country_code",
+          "event_type",
+          "item_id",
+          "arm_id",
+          "event_date",
+          "quantity",
+          "patient_id",
+          "lot_number",
+          "notes",
+        ];
+        const rows = [headers.join(",")];
+
+        let patN = 1,
+          lotN = 1;
+
+        // Screen failures
+        for (let i = 0; i < screenFailures; i++) {
+          const site = sites[i % sites.length];
+          rows.push(
+            [
+              site.site_id,
+              site.country_code,
+              "screen_failure",
+              "",
+              "",
+              dropDate,
+              1,
+              `PAT-${String(patN++).padStart(3, "0")}`,
+              "",
+              "Screen failure at screening visit",
+            ].join(","),
+          );
+        }
+
+        // Build arm assignment order based on ratio
+        const armSequence = [];
+        ratioParts.forEach((count, idx) => {
+          for (let k = 0; k < count; k++)
+            armSequence.push(arms[idx % arms.length]);
+        });
+
+        // Randomisation + dispensing
+        for (let i = 0; i < randomised; i++) {
+          const site = sites[i % sites.length];
+          const patId = `PAT-${String(patN++).padStart(3, "0")}`;
+          const arm = armSequence[i % armSequence.length];
+
+          rows.push(
+            [
+              site.site_id,
+              site.country_code,
+              "randomisation",
+              "",
+              arm,
+              dropDate,
+              1,
+              patId,
+              "",
+              "",
+            ].join(","),
+          );
+
+          for (const item of items.filter((it) => it.arm === arm)) {
+            rows.push(
+              [
+                site.site_id,
+                site.country_code,
+                "dispensing",
+                item.item_id,
+                arm,
+                dropDate,
+                1,
+                patId,
+                `LOT-${String(lotN++).padStart(3, "0")}`,
+                "",
+              ].join(","),
+            );
+          }
+        }
+
+        downloadFile("rtsm_actuals.csv", rows.join("\n"), "text/csv");
+      }
+
+      // ─── Load Configs ───────────────────────────────────────────────────────────
+
+      function loadStudyConfigFile(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          try {
+            const config = JSON.parse(e.target.result);
+            populateStudyConfig(config);
+            showToast("Study Config loaded successfully");
+            showTab(
+              "study-config",
+              document.querySelector('[data-tab="study-config"]'),
+            );
+          } catch (err) {
+            showToast("Error: Invalid JSON file — " + err.message);
+          }
+        };
+        reader.readAsText(file);
+      }
+
+      function loadSupplyNetworkFile(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          try {
+            const network = JSON.parse(e.target.result);
+            populateSupplyNetwork(network);
+            showToast("Supply Network loaded successfully");
+            showTab(
+              "supply-network",
+              document.querySelector('[data-tab="supply-network"]'),
+            );
+          } catch (err) {
+            showToast("Error: Invalid JSON file — " + err.message);
+          }
+        };
+        reader.readAsText(file);
+      }
+
+      function populateStudyConfig(config) {
+        // Study Identity
+        if (config.study_identity) {
+          const si = config.study_identity;
+          document.getElementById("sc-study-id").value = si.study_id || "";
+          document.getElementById("sc-study-name").value = si.study_name || "";
+          document.getElementById("sc-protocol").value =
+            si.protocol_number || "";
+          document.getElementById("sc-phase").value = si.phase || "";
+          document.getElementById("sc-sponsor").value = si.sponsor || "";
+        }
+
+        // Randomisation
+        if (config.randomisation_ratio) {
+          document.getElementById("sc-rand-ratio").value =
+            config.randomisation_ratio;
+        }
+
+        // Treatment Arms
+        if (config.treatment_arms && Array.isArray(config.treatment_arms)) {
+          const container = document.getElementById("sc-arms-list");
+          container.innerHTML = "";
+          config.treatment_arms.forEach((arm, idx) => {
+            const div = document.createElement("div");
+            div.className = "card";
+            div.innerHTML = armCardTemplate(idx);
+            container.appendChild(div);
+            div.querySelector(".arm-id").value = arm.arm_id || "";
+            div.querySelector(".arm-name").value = arm.arm_name || "";
+            div.querySelector(".arm-desc").value = arm.description || "";
+          });
+          refreshArmDropdowns();
+        }
+
+        // Items
+        if (config.items && Array.isArray(config.items)) {
+          const container = document.getElementById("sc-items-list");
+          container.innerHTML = "";
+          config.items.forEach((item, idx) => {
+            const div = document.createElement("div");
+            div.className = "card";
+            div.innerHTML = itemCardTemplate(idx);
+            container.appendChild(div);
+            div.querySelector(".item-id").value = item.item_id || "";
+            div.querySelector(".item-name").value = item.item_name || "";
+            div.querySelector(".item-arm").value = item.arm || "";
+            div.querySelector(".item-pack-size").value = item.pack_size || 1;
+            div.querySelector(".item-units").value = item.units_per_pack || 28;
+            div.querySelector(".item-temp").value =
+              item.temperature_requirement || "ambient";
+            div.querySelector(".item-desc").value = item.description || "";
+          });
+          refreshArmDropdowns();
+        }
+
+        // Countries
+        if (config.countries && Array.isArray(config.countries)) {
+          const container = document.getElementById("sc-countries-list");
+          container.innerHTML = "";
+          config.countries.forEach((country, idx) => {
+            const div = document.createElement("div");
+            div.className = "card";
+            div.innerHTML = countryCardTemplate(idx);
+            container.appendChild(div);
+            div.querySelector(".country-code").value =
+              country.country_code || "";
+            div.querySelector(".country-name").value =
+              country.country_name || "";
+          });
+          refreshCountryDropdowns();
+        }
+
+        // Sites
+        if (config.sites && Array.isArray(config.sites)) {
+          const container = document.getElementById("sc-sites-list");
+          container.innerHTML = "";
+          config.sites.forEach((site, idx) => {
+            const div = document.createElement("div");
+            div.className = "card";
+            div.innerHTML = siteCardTemplate(idx);
+            container.appendChild(div);
+            refreshCountryDropdowns();
+            div.querySelector(".site-id").value = site.site_id || "";
+            div.querySelector(".site-name").value = site.site_name || "";
+            div.querySelector(".site-country").value = site.country_code || "";
+          });
+        }
+
+        // Thresholds
+        if (
+          config.thresholds &&
+          config.thresholds.overrides &&
+          Array.isArray(config.thresholds.overrides)
+        ) {
+          const container = document.getElementById("sc-thresholds-list");
+          container.innerHTML = "";
+          document.getElementById("sc-demand-delta").value =
+            config.thresholds.demand_delta_significance_pct || 10;
+          config.thresholds.overrides.forEach((override, idx) => {
+            const div = document.createElement("div");
+            div.className = "card";
+            div.innerHTML = thresholdCardTemplate(idx);
+            container.appendChild(div);
+            const scope = override.item_id
+              ? "item_id"
+              : override.country_code
+                ? "country_code"
+                : "item_id";
+            const id = override.item_id || override.country_code || "";
+            div.querySelector(".thr-scope").value = scope;
+            div.querySelector(".thr-id").value = id;
+            div.querySelector(".thr-pct").value = override.threshold_pct || 15;
+          });
+        }
+
+        // Assumptions
+        if (config.assumptions) {
+          const assum = config.assumptions;
+          document.getElementById("sc-sfr").value =
+            assum.screen_failure_rate_pct || 20;
+          document.getElementById("sc-dropout").value =
+            assum.dropout_rate_pct || 10;
+          document.getElementById("sc-review-weeks").value =
+            assum.review_period_weeks || 4;
+        }
+      }
+
+      function populateSupplyNetwork(network) {
+        // Depots
+        if (network.depots && Array.isArray(network.depots)) {
+          const container = document.getElementById("sn-depots-list");
+          container.innerHTML = "";
+          network.depots.forEach((depot, idx) => {
+            const div = document.createElement("div");
+            div.className = "card";
+            div.innerHTML = depotCardTemplate(idx);
+            container.appendChild(div);
+            div.querySelector(".depot-id").value = depot.depot_id || "";
+            div.querySelector(".depot-name").value = depot.depot_name || "";
+            div.querySelector(".depot-country").value = depot.country || "";
+            if (depot.capabilities) {
+              if (depot.capabilities.includes("ambient")) {
+                div.querySelector(".cap-ambient").checked = true;
+              }
+              if (depot.capabilities.includes("cold_chain")) {
+                div.querySelector(".cap-cold").checked = true;
+              }
+            }
+            div.querySelector(".depot-desc").value = depot.description || "";
+          });
+          refreshDepotDropdowns();
+        }
+
+        // Manufacturing Sites
+        if (
+          network.manufacturing_sites &&
+          Array.isArray(network.manufacturing_sites)
+        ) {
+          const container = document.getElementById("sn-mfg-list");
+          container.innerHTML = "";
+          network.manufacturing_sites.forEach((mfg, idx) => {
+            const div = document.createElement("div");
+            div.className = "card";
+            div.innerHTML = mfgCardTemplate(idx);
+            container.appendChild(div);
+            div.querySelector(".mfg-id").value = mfg.site_id || "";
+            div.querySelector(".mfg-name").value = mfg.site_name || "";
+            div.querySelector(".mfg-country").value = mfg.country || "";
+            div.querySelector(".mfg-produces").value = (
+              mfg.produces || []
+            ).join(", ");
+            div.querySelector(".mfg-desc").value = mfg.description || "";
+          });
+        }
+
+        // Shipping Lanes
+        if (network.shipping_lanes && Array.isArray(network.shipping_lanes)) {
+          const container = document.getElementById("sn-lanes-list");
+          container.innerHTML = "";
+          network.shipping_lanes.forEach((lane, idx) => {
+            const div = document.createElement("div");
+            div.className = "card";
+            div.innerHTML = laneCardTemplate(idx);
+            container.appendChild(div);
+            div.querySelector(".lane-id").value = lane.lane_id || "";
+            div.querySelector(".lane-origin").value = lane.origin || "";
+            div.querySelector(".lane-dest").value = lane.destination || "";
+            div.querySelector(".lane-lead").value = lane.lead_time_days || 14;
+            div.querySelector(".lane-type").value = lane.lane_type || "ground";
+            div.querySelector(".lane-desc").value = lane.description || "";
+          });
+        }
+
+        // Country-Depot Assignments
+        if (
+          network.country_depot_assignments &&
+          Array.isArray(network.country_depot_assignments)
+        ) {
+          const container = document.getElementById("sn-country-depot-list");
+          container.innerHTML = "";
+          network.country_depot_assignments.forEach((assignment, idx) => {
+            const div = document.createElement("div");
+            div.className = "card";
+            div.innerHTML = countryDepotCardTemplate(idx);
+            container.appendChild(div);
+            refreshAllNetworkDropdowns();
+            div.querySelector(".cd-country").value =
+              assignment.country_code || "";
+            div.querySelector(".cd-depot").value = assignment.depot_id || "";
+          });
+        }
+      }
+
+      function loadPoliciesFile(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          try {
+            const policies = JSON.parse(e.target.result);
+            populatePolicies(policies);
+            showToast("Policies loaded successfully");
+            showTab(
+              "policies",
+              document.querySelector('[data-tab="policies"]'),
+            );
+          } catch (err) {
+            showToast("Error: Invalid JSON file — " + err.message);
+          }
+        };
+        reader.readAsText(file);
+      }
+
+      function populatePolicies(p) {
+        if (p.safety_stock) {
+          document.getElementById("pol-ss-min").value =
+            p.safety_stock.default_minimum_weeks ?? 3;
+          if (Array.isArray(p.safety_stock.overrides)) {
+            const container = document.getElementById("pol-ss-overrides");
+            container.innerHTML = "";
+            p.safety_stock.overrides.forEach((o, idx) => {
+              const div = document.createElement("div");
+              div.className = "card";
+              div.innerHTML = overrideCardTemplate(idx);
+              container.appendChild(div);
+              const scope = o.depot_id
+                ? "depot_id"
+                : o.country_code
+                  ? "country_code"
+                  : "item_id";
+              div.querySelector(".ovr-scope").value = scope;
+              div.querySelector(".ovr-id").value =
+                o.depot_id || o.country_code || o.item_id || "";
+              div.querySelector(".ovr-weeks").value = o.weeks ?? 4;
+            });
+          }
+        }
+        if (p.reorder_rules) {
+          document.getElementById("pol-reorder-weeks").value =
+            p.reorder_rules.reorder_point_weeks ?? 8;
+          document.getElementById("pol-min-order").value =
+            p.reorder_rules.minimum_order_quantity ?? 8;
+          document.getElementById("pol-max-order").value =
+            p.reorder_rules.maximum_order_quantity ?? 25;
+        }
+        if (p.maximum_stock_levels) {
+          document.getElementById("pol-max-weeks").value =
+            p.maximum_stock_levels.default_maximum_weeks ?? 16;
+          if (Array.isArray(p.maximum_stock_levels.overrides)) {
+            const container = document.getElementById("pol-maxstock-overrides");
+            container.innerHTML = "";
+            p.maximum_stock_levels.overrides.forEach((o, idx) => {
+              const div = document.createElement("div");
+              div.className = "card";
+              div.innerHTML = overrideCardTemplate(idx);
+              container.appendChild(div);
+              const scope = o.depot_id
+                ? "depot_id"
+                : o.country_code
+                  ? "country_code"
+                  : "item_id";
+              div.querySelector(".ovr-scope").value = scope;
+              div.querySelector(".ovr-id").value =
+                o.depot_id || o.country_code || o.item_id || "";
+              div.querySelector(".ovr-weeks").value = o.weeks ?? 4;
+            });
+          }
+        }
+        if (p.budget) {
+          document.getElementById("pol-budget").value =
+            p.budget.budget_envelope ?? 2500000;
+          document.getElementById("pol-currency").value =
+            p.budget.currency || "USD";
+        }
+        if (p.expiry_rules) {
+          document.getElementById("pol-shelf-life").value =
+            p.expiry_rules.minimum_remaining_shelf_life_months ?? 6;
+          if (p.expiry_rules.destruction_eligibility) {
+            const d = p.expiry_rules.destruction_eligibility;
+            document.getElementById("pol-dest-expired").checked =
+              d.expired_stock ?? true;
+            document.getElementById("pol-dest-closed").checked =
+              d.study_closed_stock ?? true;
+            document.getElementById("pol-dest-recalled").checked =
+              d.recalled_stock ?? false;
+            document.getElementById("pol-dest-damaged").checked =
+              d.damaged_stock ?? true;
+          }
+        }
+        if (Array.isArray(p.sop_references)) {
+          const container = document.getElementById("pol-sops-list");
+          container.innerHTML = "";
+          p.sop_references.forEach((sop, idx) => {
+            const div = document.createElement("div");
+            div.className = "card";
+            div.innerHTML = sopCardTemplate(idx);
+            container.appendChild(div);
+            div.querySelector(".sop-id").value = sop.sop_id || "";
+            div.querySelector(".sop-name").value = sop.sop_name || "";
+            div.querySelector(".sop-desc").value = sop.description || "";
+          });
+        }
+      }
+
+      // ─── Actuals Panel Download Wrappers ───────────────────────────────────────
+
+      function downloadCtmsCsvFromActuals() {
+        document.getElementById("sc-csv-start").value =
+          document.getElementById("act-ctms-start").value;
+        document.getElementById("sc-csv-end").value =
+          document.getElementById("act-ctms-end").value;
+        document.getElementById("sc-csv-enrollment").value =
+          document.getElementById("act-ctms-enrollment").value;
+        downloadCtmsCsv();
+      }
+
+      function downloadErpCsvFromActuals() {
+        document.getElementById("sn-csv-date").value =
+          document.getElementById("act-erp-date").value;
+        document.getElementById("sn-csv-min").value =
+          document.getElementById("act-erp-min").value;
+        document.getElementById("sn-csv-max").value =
+          document.getElementById("act-erp-max").value;
+        downloadErpCsv();
+      }
+
+      function downloadRtsmCsvFromActuals() {
+        document.getElementById("pol-csv-date").value =
+          document.getElementById("act-rtsm-date").value;
+        document.getElementById("pol-csv-patients").value =
+          document.getElementById("act-rtsm-patients").value;
+        document.getElementById("pol-csv-sfr").value =
+          document.getElementById("act-rtsm-sfr").value;
+        downloadRtsmCsv();
+      }
+
+      function downloadSiteInventoryCsv() {
+        const sites = getCards("sc-sites-list")
+          .map((c) => c.querySelector(".site-id").value)
+          .filter(Boolean);
+        const items = getCards("sc-items-list")
+          .map((c) => c.querySelector(".item-id").value)
+          .filter(Boolean);
+
+        if (!sites.length || !items.length) {
+          showToast("Add sites and items in Step 1 first");
+          return;
+        }
+
+        const minQty = parseInt(document.getElementById("act-si-min-qty").value) || 5;
+        const maxQty = parseInt(document.getElementById("act-si-max-qty").value) || 30;
+        const minDemand = parseInt(document.getElementById("act-si-min-demand").value) || 1;
+        const maxDemand = parseInt(document.getElementById("act-si-max-demand").value) || 5;
+        const minReorder = parseInt(document.getElementById("act-si-min-reorder").value) || 3;
+        const maxReorder = parseInt(document.getElementById("act-si-max-reorder").value) || 12;
+        const randInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+        const headers = ["Site", "item_id", "On_Hand_Qty", "Weekly_Demand", "Min_Reorder_Point", "Max_Reorder_Point"];
+        const rows = [headers.join(",")];
+
+        for (const site of sites) {
+          for (const item of items) {
+            const weeklyDemand = randInt(minDemand, maxDemand);
+            const onHand = randInt(minQty, maxQty);
+            rows.push([site, item, onHand, weeklyDemand, minReorder, maxReorder].join(","));
+          }
+        }
+
+        downloadFile("site_inventory.csv", rows.join("\n"), "text/csv");
+      }
+
+      // ─── Init ───────────────────────────────────────────────────────────────────
+
+      window.addEventListener("DOMContentLoaded", () => {
+        const today = new Date().toISOString().slice(0, 10);
+        [
+          "sc-csv-start",
+          "sc-csv-end",
+          "sn-csv-date",
+          "pol-csv-date",
+          "act-ctms-start",
+          "act-ctms-end",
+          "act-erp-date",
+          "act-rtsm-date",
+          "act-si-date",
+        ].forEach((id) => {
+          const el = document.getElementById(id);
+          if (el) el.value = today;
+        });
+
+        // Sync SFR from Study Config to Policies tab
+        const sfrInput = document.getElementById("sc-sfr");
+        const polSfr = document.getElementById("pol-csv-sfr");
+        if (sfrInput && polSfr) {
+          sfrInput.addEventListener("input", () => {
+            polSfr.value = sfrInput.value;
+          });
+        }
+      });
+    </script>
+  </body>
+</html>

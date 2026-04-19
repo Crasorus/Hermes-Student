@@ -1,0 +1,36 @@
+{
+  "_instructions": "Define label language, content, and format requirements for each country in the study. These are used by the Compliance Manager (CO-02) to validate shipments.",
+
+  "countries": [
+    {
+      "country_code": "IE",
+      "country_name": "Ireland",
+      "required_languages": ["English"],
+      "required_content": [
+        "study_number",
+        "item_description",
+        "storage_conditions",
+        "sponsor_name",
+        "lot_number",
+        "expiry_date",
+        "caution_statement"
+      ],
+      "format_notes": "MHRA requires labels to be in English. Include storage conditions as 'Store at 2-8°C'. Caution statement should read 'For clinical trial use only'."
+    },
+    {
+      "country_code": "BE",
+      "country_name": "Belgium",
+      "required_languages": ["French"],
+      "required_content": [
+        "study_number",
+        "item_description",
+        "storage_conditions",
+        "sponsor_name",
+        "lot_number",
+        "expiry_date",
+        "caution_statement"
+      ],
+      "format_notes": "MHRA requires labels to be in French. Include storage conditions as 'Store at 2-8°C'. Caution statement should read 'For clinical trial use only'."
+    }
+  ]
+}

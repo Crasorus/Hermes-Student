@@ -1,0 +1,185 @@
+{
+  "study_identity": {
+    "study_id": "999999",
+    "study_name": "999999",
+    "protocol_number": "999999",
+    "phase": "Phase 2",
+    "sponsor": "WonderPills Ltd"
+  },
+  "treatment_arms": [
+    {
+      "arm_id": "Arm-A",
+      "arm_name": "Active",
+      "description": ""
+    },
+    {
+      "arm_id": "Arm-B",
+      "arm_name": "Active",
+      "description": ""
+    }
+  ],
+  "randomisation_ratio": "1:1",
+  "items": [
+    {
+      "item_id": "ITEM-401",
+      "item_name": "Active Item",
+      "arm": "Arm-A",
+      "pack_size": 1,
+      "units_per_pack": 28,
+      "temperature_requirement": "ambient",
+      "description": ""
+    },
+    {
+      "item_id": "ITEM-402",
+      "item_name": "Placebo",
+      "arm": "Arm-B",
+      "pack_size": 1,
+      "units_per_pack": 28,
+      "temperature_requirement": "ambient",
+      "description": ""
+    }
+  ],
+  "thresholds": {
+    "demand_delta_significance_pct": 20,
+    "overrides": []
+  },
+  "countries": [
+    {
+      "country_code": "IE",
+      "country_name": "ireland"
+    },
+    {
+      "country_code": "BE",
+      "country_name": "belgium"
+    }
+  ],
+  "sites": [
+    {
+      "site_id": "Site-48",
+      "site_name": "kerry Clinic",
+      "country_code": "IE"
+    },
+    {
+      "site_id": "Site-49",
+      "site_name": "Donegal clinic",
+      "country_code": "IE"
+    },
+    {
+      "site_id": "Site-50",
+      "site_name": "Sligo Clinic",
+      "country_code": "IE"
+    },
+    {
+      "site_id": "Site-61",
+      "site_name": "Wavre Clinic",
+      "country_code": "BE"
+    }
+  ],
+  "required_files": {
+    "files": [
+      {
+        "file_name": "rtsm_actuals.csv",
+        "location": "data_drops/{data_drop_date}/",
+        "criticality": "critical"
+      },
+      {
+        "file_name": "erp_inventory.csv",
+        "location": "data_drops/{data_drop_date}/",
+        "criticality": "critical"
+      },
+      {
+        "file_name": "ctms_plan.csv",
+        "location": "data_drops/{data_drop_date}/",
+        "criticality": "critical"
+      }
+    ]
+  },
+  "schemas": {
+    "ctms_plan": {
+      "required_columns": [
+        "site_id",
+        "country_code",
+        "record_type",
+        "record_date"
+      ],
+      "optional_columns": [
+        "planned_enrollment",
+        "actual_enrollment",
+        "site_status",
+        "visit_type",
+        "visit_window_days"
+      ],
+      "column_types": {
+        "site_id": "text",
+        "country_code": "text",
+        "record_type": "text",
+        "record_date": "date",
+        "planned_enrollment": "number",
+        "actual_enrollment": "number",
+        "site_status": "text",
+        "visit_type": "text",
+        "visit_window_days": "number"
+      }
+    },
+    "erp_inventory": {
+      "required_columns": [
+        "item_id",
+        "location",
+        "record_type",
+        "quantity",
+        "record_date"
+      ],
+      "optional_columns": [
+        "lot_number",
+        "expiry_date",
+        "order_id",
+        "shipment_id",
+        "status",
+        "origin",
+        "destination"
+      ],
+      "column_types": {
+        "item_id": "text",
+        "location": "text",
+        "record_type": "text",
+        "quantity": "number",
+        "record_date": "date",
+        "lot_number": "text",
+        "expiry_date": "date",
+        "order_id": "text",
+        "shipment_id": "text",
+        "status": "text",
+        "origin": "text",
+        "destination": "text"
+      }
+    },
+    "rtsm_actuals": {
+      "required_columns": ["site_id", "country_code", "event_type", "item_id"],
+      "optional_columns": [
+        "arm_id",
+        "event_date",
+        "quantity",
+        "patient_id",
+        "lot_number",
+        "notes"
+      ],
+      "column_types": {
+        "site_id": "text",
+        "country_code": "text",
+        "event_type": "text",
+        "item_id": "text",
+        "arm_id": "text",
+        "event_date": "date",
+        "quantity": "number",
+        "patient_id": "text",
+        "lot_number": "text",
+        "notes": "text"
+      }
+    }
+  },
+  "assumptions": {
+    "screen_failure_rate_pct": 16,
+    "dropout_rate_pct": 10,
+    "review_period_weeks": 4
+  }
+}

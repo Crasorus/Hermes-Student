@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hermes Data Drop Viewer</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: #1e293b;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── Header ── */
+    header {
+      background: #1e3a5f;
+      color: white;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+    header .header-text { flex: 1; }
+    header h1 { font-size: 1.4rem; font-weight: 600; }
+    header .subtitle { font-size: 0.875rem; color: #94a3b8; margin-top: 2px; }
+    header a.back-link {
+      color: #94a3b8;
+      text-decoration: none;
+      font-size: 0.875rem;
+      white-space: nowrap;
+      transition: color 0.15s;
+    }
+    header a.back-link:hover { color: white; }
+
+    /* ── Body layout ── */
+    .body-layout {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 220px;
+      background: #1e293b;
+      color: #cbd5e1;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      overflow-y: auto;
+      padding: 16px 12px;
+      gap: 8px;
+    }
+    .sidebar .load-btn {
+      background: #0f766e;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 10px;
+      width: 100%;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      margin-bottom: 8px;
+      transition: background 0.15s;
+    }
+    .sidebar .load-btn:hover { background: #0d6b63; }
+    .sidebar .slot-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #64748b;
+      margin-top: 8px;
+      margin-bottom: 4px;
+    }
+    .sidebar .slot {
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-size: 0.85rem;
+      cursor: default;
+      transition: background 0.15s;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .sidebar .slot.unloaded {
+      color: #475569;
+      background: #263245;
+    }
+    .sidebar .slot.loaded {
+      color: #e2e8f0;
+      background: #334155;
+      cursor: pointer;
+    }
+    .sidebar .slot.loaded:hover { background: #3d4f65; }
+    .sidebar .slot.active {
+      background: #2563eb;
+      color: white;
+      cursor: pointer;
+    }
+    .sidebar .slot-name { font-weight: 600; font-size: 0.82rem; }
+    .sidebar .slot-meta { font-size: 0.72rem; opacity: 0.75; }
+
+    /* ── Main area ── */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: #f1f5f9;
+    }
+    .main-toolbar {
+      padding: 16px 20px 8px;
+      flex-shrink: 0;
+    }
+    .main-toolbar input[type="text"] {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 0.9rem;
+      color: #1e293b;
+      background: white;
+      transition: border-color 0.15s;
+    }
+    .main-toolbar input[type="text"]:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+    }
+    .row-count {
+      font-size: 0.8rem;
+      color: #64748b;
+      padding: 4px 20px 8px;
+      flex-shrink: 0;
+    }
+    .grid-container {
+      flex: 1;
+      overflow: auto;
+      margin: 0 20px 20px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      background: white;
+    }
+    .empty-state {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: #94a3b8;
+      font-size: 0.95rem;
+    }
+    table {
+      border-collapse: collapse;
+      width: max-content;
+      min-width: 100%;
+    }
+    thead th {
+      position: sticky;
+      top: 0;
+      background: #dbeafe;
+      color: #1e3a5f;
+      font-weight: 600;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 2px solid #bfdbfe;
+      white-space: nowrap;
+      z-index: 1;
+    }
+    tbody tr:nth-child(odd) td { background: #fff; }
+    tbody tr:nth-child(even) td { background: #f8fafc; }
+    tbody tr:hover td { background: #eff6ff; }
+    tbody td {
+      padding: 7px 14px;
+      font-size: 0.82rem;
+      white-space: nowrap;
+      border-bottom: 1px solid #f1f5f9;
+      color: #334155;
+    }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #1e293b;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: all 0.3s;
+      pointer-events: none;
+      z-index: 1000;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-text">
+      <h1>Hermes Data Drop Viewer</h1>
+      <p class="subtitle">Browse and inspect data drop CSV files</p>
+    </div>
+    <a href="index.html" class="back-link">&#8592; Study Data Creation</a>
+  </header>
+
+  <div class="body-layout">
+
+    <aside class="sidebar">
+      <button class="load-btn" onclick="triggerFileLoad()">&#128194; Load All 4 Files</button>
+      <input type="file" id="file-input" style="display:none;" multiple accept=".csv" onchange="handleFiles(event)">
+
+      <div class="slot-label">Files</div>
+
+      <div class="slot unloaded" id="slot-ctms" onclick="activateSlot('ctms')">
+        <span class="slot-name">ctms_plan</span>
+        <span class="slot-meta" id="meta-ctms">Not loaded</span>
+      </div>
+
+      <div class="slot unloaded" id="slot-erp" onclick="activateSlot('erp')">
+        <span class="slot-name">erp_inventory</span>
+        <span class="slot-meta" id="meta-erp">Not loaded</span>
+      </div>
+
+      <div class="slot unloaded" id="slot-rtsm" onclick="activateSlot('rtsm')">
+        <span class="slot-name">rtsm_actuals</span>
+        <span class="slot-meta" id="meta-rtsm">Not loaded</span>
+      </div>
+
+      <div class="slot unloaded" id="slot-siteinv" onclick="activateSlot('siteinv')">
+        <span class="slot-name">site_inventory</span>
+        <span class="slot-meta" id="meta-siteinv">Not loaded</span>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="main-toolbar">
+        <input type="text" id="search-box" placeholder="Search all columns..." oninput="applySearch()" disabled>
+      </div>
+      <div class="row-count" id="row-count"></div>
+      <div class="grid-container" id="grid-container">
+        <div class="empty-state">Load CSV files using the sidebar to get started</div>
+      </div>
+    </main>
+
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    // ── State ────────────────────────────────────────────────────────────────
+    const files = { ctms: null, erp: null, rtsm: null, siteinv: null };
+    let activeSlot = null;
+
+    // ── Toast ─────────────────────────────────────────────────────────────────
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    // ── CSV Parser (RFC 4180, BOM-aware) ─────────────────────────────────────
+    function parseCsv(text) {
+      // Strip UTF-8 BOM if present
+      if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+
+      const rows = [];
+      let row = [];
+      let field = '';
+      let inQuotes = false;
+      let i = 0;
+
+      while (i < text.length) {
+        const ch = text[i];
+        const next = text[i + 1];
+
+        if (inQuotes) {
+          if (ch === '"' && next === '"') {
+            // Escaped quote inside quoted field
+            field += '"';
+            i += 2;
+          } else if (ch === '"') {
+            // End of quoted field
+            inQuotes = false;
+            i++;
+          } else {
+            field += ch;
+            i++;
+          }
+        } else {
+          if (ch === '"') {
+            inQuotes = true;
+            i++;
+          } else if (ch === ',') {
+            row.push(field);
+            field = '';
+            i++;
+          } else if (ch === '\r' && next === '\n') {
+            row.push(field);
+            field = '';
+            rows.push(row);
+            row = [];
+            i += 2;
+          } else if (ch === '\n' || ch === '\r') {
+            row.push(field);
+            field = '';
+            rows.push(row);
+            row = [];
+            i++;
+          } else {
+            field += ch;
+            i++;
+          }
+        }
+      }
+
+      // Final field and row
+      if (field || row.length > 0) {
+        row.push(field);
+        rows.push(row);
+      }
+
+      // Remove trailing empty row (common at end of file)
+      if (rows.length > 0) {
+        const last = rows[rows.length - 1];
+        if (last.length === 1 && last[0] === '') rows.pop();
+      }
+
+      if (rows.length === 0) return { headers: [], rows: [] };
+      return { headers: rows[0], rows: rows.slice(1) };
+    }
+
+    // ── File Type Detection ───────────────────────────────────────────────────
+    function detectSlot(filename) {
+      const name = filename.toLowerCase();
+      if (name.includes('ctms')) return 'ctms';
+      if (name.includes('erp'))  return 'erp';
+      if (name.includes('rtsm')) return 'rtsm';
+      if (name.includes('site_inventory') || name.includes('siteinventory')) return 'siteinv';
+      return null;
+    }
+
+    // ── File Loading ─────────────────────────────────────────────────────────
+    function triggerFileLoad() {
+      document.getElementById('file-input').value = '';
+      document.getElementById('file-input').click();
+    }
+
+    function handleFiles(event) {
+      const selectedFiles = Array.from(event.target.files);
+      if (!selectedFiles.length) return;
+
+      let pendingReads = selectedFiles.length;
+      const results = []; // { slot, data, filename }
+
+      selectedFiles.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const slot = detectSlot(file.name);
+          results.push({ slot, data: e.target.result, filename: file.name });
+          pendingReads--;
+          if (pendingReads === 0) processLoadedFiles(results);
+        };
+        reader.onerror = () => {
+          showToast(`Failed to read "${file.name}"`);
+          pendingReads--;
+          if (pendingReads === 0 && results.length > 0) processLoadedFiles(results);
+        };
+        reader.readAsText(file, 'UTF-8');
+      });
+    }
+
+    function processLoadedFiles(results) {
+      const claimedInLoop = new Set();
+
+      for (const { slot, data, filename } of results) {
+        let targetSlot = slot;
+
+        if (!targetSlot) {
+          // Find first slot not already filled and not claimed by another file in this batch
+          const claimed = new Set(results.map(r => r.slot).filter(Boolean));
+          const freeSlot = ['ctms', 'erp', 'rtsm', 'siteinv'].find(k => !files[k] && !claimed.has(k) && !claimedInLoop.has(k));
+          if (freeSlot) {
+            targetSlot = freeSlot;
+          } else {
+            showToast(`Could not identify "${filename}" — all slots already filled`);
+            continue;
+          }
+        }
+
+        files[targetSlot] = parseCsv(data);
+        claimedInLoop.add(targetSlot);
+        updateSlotUI(targetSlot);
+      }
+
+      // After loading, set active slot: keep current if still loaded, else first loaded
+      if (activeSlot && files[activeSlot]) {
+        document.getElementById('search-box').value = '';
+        renderGrid(activeSlot);
+      } else {
+        const firstLoaded = ['ctms', 'erp', 'rtsm', 'siteinv'].find(k => files[k]);
+        if (firstLoaded) activateSlot(firstLoaded);
+      }
+    }
+
+    // ── Slot UI ───────────────────────────────────────────────────────────────
+    function updateSlotUI(slot) {
+      const el = document.getElementById('slot-' + slot);
+      const meta = document.getElementById('meta-' + slot);
+      const data = files[slot];
+
+      if (!data) {
+        el.className = 'slot unloaded';
+        meta.textContent = 'Not loaded';
+        return;
+      }
+
+      const isActive = activeSlot === slot;
+      el.className = 'slot ' + (isActive ? 'active' : 'loaded');
+      meta.textContent = data.rows.length + ' rows · ' + data.headers.length + ' cols';
+    }
+
+    function activateSlot(slot) {
+      if (!files[slot]) return; // Unloaded slot — ignore click
+      activeSlot = slot;
+
+      // Update all slot classes
+      ['ctms', 'erp', 'rtsm', 'siteinv'].forEach(k => updateSlotUI(k));
+
+      // Clear search and render
+      document.getElementById('search-box').value = '';
+      renderGrid(slot);
+    }
+
+    // ── Grid Rendering ────────────────────────────────────────────────────────
+    function renderGrid(slot) {
+      const container = document.getElementById('grid-container');
+      const searchBox = document.getElementById('search-box');
+      const data = files[slot];
+
+      if (!data) {
+        container.innerHTML = '<div class="empty-state">No data loaded</div>';
+        searchBox.disabled = true;
+        document.getElementById('row-count').textContent = '';
+        return;
+      }
+
+      searchBox.disabled = false;
+      renderFilteredRows(data, '');
+    }
+
+    function applySearch() {
+      if (!activeSlot || !files[activeSlot]) return;
+      const query = document.getElementById('search-box').value;
+      renderFilteredRows(files[activeSlot], query);
+    }
+
+    function renderFilteredRows(data, query) {
+      const container = document.getElementById('grid-container');
+      const rowCountEl = document.getElementById('row-count');
+      const q = query.toLowerCase();
+
+      const filtered = q
+        ? data.rows.filter(row => row.some(cell => cell.toLowerCase().includes(q)))
+        : data.rows;
+
+      // Build table
+      const table = document.createElement('table');
+
+      // Header
+      const thead = document.createElement('thead');
+      const headerRow = document.createElement('tr');
+      data.headers.forEach(h => {
+        const th = document.createElement('th');
+        th.textContent = h;
+        headerRow.appendChild(th);
+      });
+      thead.appendChild(headerRow);
+      table.appendChild(thead);
+
+      // Body
+      const tbody = document.createElement('tbody');
+      filtered.forEach(row => {
+        const tr = document.createElement('tr');
+        // Pad row to header length if needed
+        const len = Math.max(row.length, data.headers.length);
+        for (let i = 0; i < len; i++) {
+          const td = document.createElement('td');
+          td.textContent = row[i] || '';
+          tr.appendChild(td);
+        }
+        tbody.appendChild(tr);
+      });
+      table.appendChild(tbody);
+
+      container.innerHTML = '';
+      container.appendChild(table);
+
+      // Row count
+      rowCountEl.textContent = q
+        ? `Showing ${filtered.length} of ${data.rows.length} rows`
+        : `${data.rows.length} rows · ${data.headers.length} columns`;
+    }
+  </script>
+
+</body>
+</html>

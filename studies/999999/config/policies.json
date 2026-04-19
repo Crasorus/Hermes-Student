@@ -1,0 +1,29 @@
+{
+  "safety_stock": {
+    "default_minimum_weeks": 2,
+    "overrides": []
+  },
+  "reorder_rules": {
+    "reorder_point_weeks": 4,
+    "minimum_order_quantity": 4,
+    "maximum_order_quantity": 5
+  },
+  "maximum_stock_levels": {
+    "default_maximum_weeks": 9,
+    "overrides": []
+  },
+  "budget": {
+    "budget_envelope": 2500000,
+    "currency": "USD"
+  },
+  "expiry_rules": {
+    "minimum_remaining_shelf_life_months": 6,
+    "destruction_eligibility": {
+      "expired_stock": true,
+      "study_closed_stock": true,
+      "recalled_stock": false,
+      "damaged_stock": true
+    }
+  },
+  "sop_references": []
+}
