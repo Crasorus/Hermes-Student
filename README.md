@@ -94,3 +94,7 @@ Each workflow run writes three files to `studies/{study_id}/outputs/YYYY-MM-DD/`
 | `WF-XX_audit_log.json` | GxP audit trail with timestamps                        |
 
 See `studies/999999/outputs/` for an example of completed output.
+
+> Disclaimer: Hermes is provided solely as an educational and exploratory tool to demonstrate potential AI use cases within clinical supply chain processes. It is not a validated system and must not be used to support decision-making in regulated clinical trial activities, including but not limited to patient safety, drug supply, or compliance-related functions.
+
+> No warranty, express or implied, is provided. Hermes is used entirely at the user’s own risk.
