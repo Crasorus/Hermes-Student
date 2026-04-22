@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hermes — Introduction</title>
+<style>
+  :root {
+    --navy: #14274E;
+    --navy-light: #1F3A6B;
+    --teal: #2A9D8F;
+    --grey-50: #F7F8FA;
+    --grey-100: #ECEEF2;
+    --grey-300: #C5CAD3;
+    --grey-600: #5A6478;
+    --grey-800: #2C3340;
+    --accent: #C89B3C;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    background: var(--grey-50);
+    color: var(--grey-800);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .deck {
+    height: 100vh;
+    width: 100vw;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .slide {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    padding: 4rem 6rem;
+    display: none;
+    flex-direction: column;
+    background: #FFFFFF;
+    animation: fadein 0.35s ease-out;
+  }
+
+  .slide.active { display: flex; }
+
+  @keyframes fadein {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Header bar on every slide */
+  .slide-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--grey-100);
+    padding-bottom: 1rem;
+    margin-bottom: 2.5rem;
+  }
+  .slide-header .brand {
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--navy);
+  }
+  .slide-header .section-tag {
+    font-size: 0.75rem;
+    color: var(--grey-600);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  h1.title {
+    font-size: 4.5rem;
+    font-weight: 300;
+    color: var(--navy);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+  }
+  h1.title .accent {
+    color: var(--teal);
+    font-weight: 600;
+  }
+
+  h2 {
+    font-size: 2.6rem;
+    font-weight: 400;
+    color: var(--navy);
+    margin-bottom: 1.2rem;
+    line-height: 1.15;
+  }
+
+  h3 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--navy-light);
+    margin-bottom: 0.6rem;
+  }
+
+  p, li {
+    font-size: 1.15rem;
+    color: var(--grey-800);
+    line-height: 1.55;
+  }
+
+  .lead {
+    font-size: 1.45rem;
+    color: var(--grey-800);
+    line-height: 1.5;
+    max-width: 60ch;
+    margin-bottom: 2rem;
+  }
+
+  .subtitle {
+    font-size: 1.5rem;
+    color: var(--grey-600);
+    font-weight: 300;
+    margin-top: 1.5rem;
+  }
+
+  /* Title slide */
+  .title-slide {
+    justify-content: center;
+    align-items: flex-start;
+    padding-left: 8rem;
+  }
+  .title-slide .meta {
+    margin-top: 4rem;
+    border-left: 4px solid var(--teal);
+    padding-left: 1.5rem;
+    color: var(--grey-600);
+    font-size: 1.1rem;
+    line-height: 1.7;
+  }
+  .title-slide .meta strong { color: var(--navy); }
+
+  /* Agent grid */
+  .agent-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+  .agent-card {
+    background: var(--grey-50);
+    border-left: 3px solid var(--teal);
+    padding: 1rem 1.2rem;
+  }
+  .agent-card .agent-name {
+    font-weight: 600;
+    color: var(--navy);
+    font-size: 1rem;
+    margin-bottom: 0.3rem;
+  }
+  .agent-card .agent-role {
+    font-size: 0.85rem;
+    color: var(--grey-600);
+    line-height: 1.4;
+  }
+
+  /* Workflow table */
+  table.workflows {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+  }
+  table.workflows th, table.workflows td {
+    text-align: left;
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--grey-100);
+    font-size: 1rem;
+  }
+  table.workflows th {
+    background: var(--navy);
+    color: #FFFFFF;
+    font-weight: 600;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  table.workflows td.id-col {
+    font-weight: 700;
+    color: var(--teal);
+    font-family: 'SF Mono', Consolas, monospace;
+    width: 80px;
+  }
+  table.workflows td.cadence-col {
+    color: var(--grey-600);
+    font-style: italic;
+    width: 130px;
+  }
+  table.workflows tr:hover { background: var(--grey-50); }
+
+  /* Architecture stack */
+  .architecture {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+  }
+  .layer {
+    display: flex;
+    align-items: center;
+    background: #FFFFFF;
+    border: 1px solid var(--grey-100);
+    border-left: 6px solid var(--teal);
+    padding: 1.1rem 1.5rem;
+    transition: transform 0.15s;
+  }
+  .layer:hover { transform: translateX(4px); }
+  .layer .layer-num {
+    font-family: 'SF Mono', Consolas, monospace;
+    color: var(--accent);
+    font-weight: 700;
+    width: 90px;
+    font-size: 0.9rem;
+  }
+  .layer .layer-name {
+    font-weight: 700;
+    color: var(--navy);
+    width: 200px;
+    font-size: 1.05rem;
+  }
+  .layer .layer-desc {
+    color: var(--grey-600);
+    font-size: 1rem;
+    flex: 1;
+  }
+  .layer .layer-count {
+    color: var(--teal);
+    font-weight: 700;
+    font-family: 'SF Mono', Consolas, monospace;
+  }
+
+  /* Benefits grid */
+  .benefits {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-top: 1.5rem;
+  }
+  .benefit {
+    border: 1px solid var(--grey-100);
+    background: var(--grey-50);
+    padding: 1.5rem;
+  }
+  .benefit-stat {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--teal);
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+  .benefit-headline {
+    font-weight: 600;
+    color: var(--navy);
+    font-size: 1.15rem;
+    margin-bottom: 0.4rem;
+  }
+  .benefit-detail {
+    color: var(--grey-600);
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  /* Big call headline (for "Build the 8th Agent") */
+  h2.big-call {
+    font-size: 3.4rem;
+    font-weight: 600;
+    color: var(--navy);
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+    margin-bottom: 1.2rem;
+  }
+  h2.big-call .accent-call {
+    color: var(--teal);
+    font-weight: 700;
+    border-bottom: 4px solid var(--accent);
+    padding-bottom: 0.1em;
+  }
+
+  /* Guide reference line on today slide */
+  .guide-ref {
+    margin-top: 1.5rem;
+    font-size: 0.95rem;
+    color: var(--grey-600);
+    border-top: 1px solid var(--grey-100);
+    padding-top: 1rem;
+  }
+  .guide-ref code {
+    font-family: 'SF Mono', Consolas, monospace;
+    background: var(--grey-100);
+    padding: 0.2rem 0.5rem;
+    border-radius: 3px;
+    color: var(--navy);
+    font-size: 0.9rem;
+  }
+
+  /* Module list */
+  .modules {
+    display: flex;
+    flex-direction: column;
+    margin-top: 1rem;
+  }
+  .module {
+    display: flex;
+    align-items: baseline;
+    padding: 0.55rem 1rem;
+    border-bottom: 1px solid var(--grey-100);
+  }
+  .module .mod-id {
+    font-family: 'SF Mono', Consolas, monospace;
+    color: var(--accent);
+    font-weight: 700;
+    width: 50px;
+    flex-shrink: 0;
+  }
+  .module .mod-name {
+    font-weight: 600;
+    color: var(--navy);
+    flex: 1;
+  }
+  .module .mod-time {
+    color: var(--grey-600);
+    font-size: 0.9rem;
+    font-style: italic;
+  }
+
+  /* Two-column body */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    margin-top: 1rem;
+  }
+  .two-col ul {
+    list-style: none;
+  }
+  .two-col li {
+    padding: 0.4rem 0;
+    padding-left: 1.4rem;
+    position: relative;
+  }
+  .two-col li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.85rem;
+    width: 6px;
+    height: 6px;
+    background: var(--teal);
+    border-radius: 50%;
+  }
+
+  /* Closing slide */
+  .closing-slide {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+  .closing-slide h1 {
+    font-size: 5rem;
+    font-weight: 300;
+    color: var(--navy);
+    letter-spacing: -0.02em;
+  }
+  .closing-slide .accent {
+    color: var(--teal);
+    font-weight: 600;
+  }
+  .closing-slide .start-cmd {
+    margin-top: 3rem;
+    font-family: 'SF Mono', Consolas, monospace;
+    background: var(--navy);
+    color: #FFFFFF;
+    padding: 1rem 2rem;
+    font-size: 1.3rem;
+    border-radius: 4px;
+  }
+
+  /* Disclaimer slide */
+  .disclaimer-slide {
+    justify-content: center;
+  }
+  .disclaimer-slide h2 {
+    color: var(--accent);
+    border-left: 6px solid var(--accent);
+    padding-left: 1.2rem;
+    margin-bottom: 2rem;
+  }
+  .disclaimer-slide p {
+    font-size: 1.25rem;
+    line-height: 1.65;
+    max-width: 75ch;
+    margin-bottom: 1.4rem;
+    color: var(--grey-800);
+  }
+  .disclaimer-slide p.emphasis {
+    font-weight: 600;
+    color: var(--navy);
+  }
+
+  /* Footer / nav */
+  .deck-footer {
+    position: fixed;
+    bottom: 1.5rem;
+    left: 0; right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 2rem;
+    font-size: 0.8rem;
+    color: var(--grey-300);
+    pointer-events: none;
+    z-index: 10;
+  }
+  .deck-footer .nav-hint {
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .deck-footer .counter {
+    font-weight: 600;
+    color: var(--grey-600);
+    font-family: 'SF Mono', Consolas, monospace;
+  }
+
+  .nav-arrow {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 48px;
+    height: 48px;
+    background: rgba(20, 39, 78, 0.05);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--navy);
+    font-size: 1.5rem;
+    transition: background 0.15s;
+    pointer-events: auto;
+    z-index: 11;
+  }
+  .nav-arrow:hover { background: rgba(20, 39, 78, 0.15); }
+  .nav-arrow.prev { left: 1rem; }
+  .nav-arrow.next { right: 1rem; }
+</style>
+</head>
+<body>
+<div class="deck">
+
+  <!-- SLIDE 1: TITLE -->
+  <section class="slide active title-slide">
+    <h1 class="title">Hermes<br><span class="accent">Clinical Supply Chain</span> AI Agent Team</h1>
+    <p class="subtitle">An introduction for clinical supply chain professionals</p>
+    <div class="meta">
+      <strong>Today's session</strong><br>
+      Hands-on lab · 3 hours · Build your own working version
+    </div>
+  </section>
+
+  <!-- SLIDE 2: DISCLAIMER -->
+  <section class="slide disclaimer-slide">
+    <div class="slide-header">
+      <span class="brand">Hermes</span>
+      <span class="section-tag">Disclaimer</span>
+    </div>
+    <h2>Important notice</h2>
+    <p class="emphasis">Hermes is provided solely as an educational and exploratory tool to demonstrate potential AI use cases within clinical supply chain processes.</p>
+    <p>It is <strong>not a validated system</strong> and must not be used to support decision-making in regulated clinical trial activities, including but not limited to patient safety, drug supply, or compliance-related functions.</p>
+    <p>No warranty, express or implied, is provided. Hermes is used entirely at the user's own risk.</p>
+  </section>
+
+  <!-- SLIDE 3: WHAT IS HERMES -->
+  <section class="slide">
+    <div class="slide-header">
+      <span class="brand">Hermes</span>
+      <span class="section-tag">1 · What is Hermes?</span>
+    </div>
+    <h2>A team of seven AI agents that run your clinical supply chain.</h2>
+    <p class="lead">Each agent is a specialist. They collaborate autonomously — sharing data, raising signals, and producing decisions. All seven are defined entirely in markdown. No code required.</p>
+    <div class="agent-grid">
+      <div class="agent-card"><div class="agent-name">Supervisor</div><div class="agent-role">Orchestrates workflows, validates study packages, routes work</div></div>
+      <div class="agent-card"><div class="agent-name">Demand Analyst</div><div class="agent-role">Enrollment, dispensing, screen failures, consumption rates</div></div>
+      <div class="agent-card"><div class="agent-name">Supply Analyst</div><div class="agent-role">Stock positions, safety stock, reorder points</div></div>
+      <div class="agent-card"><div class="agent-name">Logistics Specialist</div><div class="agent-role">Shipments, cold chain, customs, approved vendors</div></div>
+      <div class="agent-card"><div class="agent-name">Compliance Manager</div><div class="agent-role">GxP audit trails, regulatory compliance, deviations</div></div>
+      <div class="agent-card"><div class="agent-name">Insights Analyst</div><div class="agent-role">Anomalies, trends, risk hotspots across all signals</div></div>
+      <div class="agent-card"><div class="agent-name">Reporting Agent</div><div class="agent-role">Executive summaries, deviation reports, ops updates</div></div>
+      <div class="agent-card" style="border-left-color: var(--accent); background: #FFFBF2;"><div class="agent-name" style="color: var(--accent);">All seven</div><div class="agent-role">Configured per study. Run on demand. Output a complete picture.</div></div>
+    </div>
+  </section>
+
+  <!-- SLIDE 3: WHAT DOES IT DO -->
+  <section class="slide">
+    <div class="slide-header">
+      <span class="brand">Hermes</span>
+      <span class="section-tag">2 · What does it do?</span>
+    </div>
+    <h2>Five workflows cover the full supply chain cycle.</h2>
+    <p class="lead">Each workflow chains the right agents in the right order, with routing logic between them. Run them on a schedule, ad hoc, or as needed.</p>
+    <table class="workflows">
+      <thead>
+        <tr><th>ID</th><th>Workflow</th><th>What it does</th><th>Cadence</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="id-col">WF-01</td><td><strong>Demand Signal Refresh</strong></td><td>Analyses enrollment and consumption against plan</td><td class="cadence-col">Weekly</td></tr>
+        <tr><td class="id-col">WF-02</td><td><strong>Supply Plan Generation</strong></td><td>Calculates stock needs and recommends supply requests</td><td class="cadence-col">As needed</td></tr>
+        <tr><td class="id-col">WF-03</td><td><strong>Protocol Amendment Impact</strong></td><td>Assesses the supply impact of protocol changes</td><td class="cadence-col">Ad hoc</td></tr>
+        <tr><td class="id-col">WF-04</td><td><strong>Routine Monitoring</strong></td><td>Daily health check across all supply chain signals</td><td class="cadence-col">Daily</td></tr>
+        <tr><td class="id-col">WF-05</td><td><strong>Supply Plan Execution</strong></td><td>Generates shipment plans for approved supply requests</td><td class="cadence-col">As needed</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- SLIDE 4: HOW IS IT BUILT -->
+  <section class="slide">
+    <div class="slide-header">
+      <span class="brand">Hermes</span>
+      <span class="section-tag">3 · How is it built?</span>
+    </div>
+    <h2>Five layers. 100% prompt-driven. No code.</h2>
+    <p class="lead">Every behaviour in Hermes is defined in plain English in a markdown file you can open, read, and edit. No programming required to build, customise, or extend it.</p>
+    <div class="architecture">
+      <div class="layer">
+        <span class="layer-num">Layer 5</span>
+        <span class="layer-name">Runner</span>
+        <span class="layer-desc">Orchestration engine that runs the workflows and calls Claude</span>
+        <span class="layer-count">automatic</span>
+      </div>
+      <div class="layer">
+        <span class="layer-num">Layer 4</span>
+        <span class="layer-name">Workflows</span>
+        <span class="layer-desc">Sequences that define which agents run, in what order, with what routing</span>
+        <span class="layer-count">5 workflows</span>
+      </div>
+      <div class="layer">
+        <span class="layer-num">Layer 3</span>
+        <span class="layer-name">Agents</span>
+        <span class="layer-desc">AI specialists with defined identities, procedures, and skill assignments</span>
+        <span class="layer-count">7 agents</span>
+      </div>
+      <div class="layer">
+        <span class="layer-num">Layer 2</span>
+        <span class="layer-name">Skills</span>
+        <span class="layer-desc">Atomic capabilities — calculators, parsers, validators, summarisers</span>
+        <span class="layer-count">76 skills</span>
+      </div>
+      <div class="layer">
+        <span class="layer-num">Layer 1</span>
+        <span class="layer-name">Study Package</span>
+        <span class="layer-desc">Your study's config, supply network, policies, reference data, and CSV data drops</span>
+        <span class="layer-count">per-study</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 5: SKILLS DETAIL -->
+  <section class="slide">
+    <div class="slide-header">
+      <span class="brand">Hermes</span>
+      <span class="section-tag">3 · How is it built? — The skills library</span>
+    </div>
+    <h2>76 skills across 8 functional categories.</h2>
+    <p class="lead">Skills are the building blocks. Agents pick the skills they need from a shared library — the same skill can serve multiple agents.</p>
+    <div class="two-col">
+      <ul>
+        <li><strong>Data Ingestion (DI)</strong> — 12 skills · validate, parse, load study data</li>
+        <li><strong>Demand Forecasting (DF)</strong> — 9 skills · consumption, enrollment, scenarios</li>
+        <li><strong>Supply &amp; Inventory (SI)</strong> — 10 skills · stock, reorder, expiry, gaps</li>
+        <li><strong>Logistics &amp; Trade (LT)</strong> — 8 skills · lead time, cold chain, customs</li>
+      </ul>
+      <ul>
+        <li><strong>Compliance &amp; Regulatory (CO)</strong> — 10 skills · GxP, label, deviation, SOP</li>
+        <li><strong>Analytics &amp; Insights (AI)</strong> — 9 skills · anomaly, risk, trend, KPI</li>
+        <li><strong>Reporting &amp; Comms (RC)</strong> — 10 skills · summaries, dashboards, alerts</li>
+        <li><strong>Supervisor &amp; Orchestration (SO)</strong> — 8 skills · routing, preflight, exceptions</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- SLIDE 6: WHAT WILL IT DO FOR YOU -->
+  <section class="slide">
+    <div class="slide-header">
+      <span class="brand">Hermes</span>
+      <span class="section-tag">4 · What will it do for you?</span>
+    </div>
+    <h2>Time back. Fewer errors. Better visibility.</h2>
+    <p class="lead">Hermes does the routine analysis your team does manually today — every day, every study, every drop of data — without missing a step.</p>
+    <div class="benefits">
+      <div class="benefit">
+        <div class="benefit-stat">Full</div>
+        <div class="benefit-headline">End-to-end analysis on every drop</div>
+        <div class="benefit-detail">Demand, supply, logistics, compliance, and risk — all signals analysed together. Nothing waits for the analyst with the spreadsheet.</div>
+      </div>
+      <div class="benefit">
+        <div class="benefit-stat">100%</div>
+        <div class="benefit-headline">Audit trail coverage by default</div>
+        <div class="benefit-detail">Every agent action is logged with timestamps. GxP compliance built in — not bolted on after the fact.</div>
+      </div>
+      <div class="benefit">
+        <div class="benefit-stat">Minutes</div>
+        <div class="benefit-headline">From analysis to custom dashboard</div>
+        <div class="benefit-detail">Pipe Hermes output into <strong>Claude Designer</strong> to build a tailored dashboard for your study, your stakeholders, your decisions — in minutes, not weeks.</div>
+      </div>
+      <div class="benefit">
+        <div class="benefit-stat">24/7</div>
+        <div class="benefit-headline">Always-current view of supply risk</div>
+        <div class="benefit-detail">Run any workflow on demand. Get a deviation report before the morning meeting, not after the next stock-out.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 7: WHAT ARE WE DOING TODAY -->
+  <section class="slide">
+    <div class="slide-header">
+      <span class="brand">Hermes</span>
+      <span class="section-tag">5 · What are we going to do today?</span>
+    </div>
+    <h2 class="big-call">Build the <span class="accent-call">8th Agent</span> in our expert team.</h2>
+    <p class="lead">Three hours, individual hands-on. You will design and build the <strong>Optimization Agent</strong> — write its skills, write its system prompt, define its workflow, and run it end-to-end against a fictional clinical study.</p>
+    <div class="modules">
+      <div class="module"><span class="mod-id">M0</span><span class="mod-name">Setup</span><span class="mod-time">15 min</span></div>
+      <div class="module"><span class="mod-id">M1</span><span class="mod-name">Architecture orientation</span><span class="mod-time">20 min</span></div>
+      <div class="module"><span class="mod-id">M2</span><span class="mod-name">Configure your study</span><span class="mod-time">40 min</span></div>
+      <div class="module"><span class="mod-id">M3</span><span class="mod-name">Meet the Optimization Agent</span><span class="mod-time">15 min</span></div>
+      <div class="module"><span class="mod-id">M4</span><span class="mod-name">Write your skills</span><span class="mod-time">40 min</span></div>
+      <div class="module"><span class="mod-id">M5</span><span class="mod-name">Write the agent</span><span class="mod-time">30 min</span></div>
+      <div class="module"><span class="mod-id">M6</span><span class="mod-name">Define your workflow</span><span class="mod-time">15 min</span></div>
+      <div class="module"><span class="mod-id">M7</span><span class="mod-name">Run the workflow chain</span><span class="mod-time">15 min</span></div>
+      <div class="module"><span class="mod-id">M8</span><span class="mod-name">Review &amp; discussion</span><span class="mod-time">10 min</span></div>
+    </div>
+    <p class="guide-ref">Step-by-step instructions: <code>lab/student/student_guide.md</code></p>
+  </section>
+
+  <!-- SLIDE 8: CLOSING / LET'S BEGIN -->
+  <section class="slide closing-slide">
+    <h1>Let's get <span class="accent">started.</span></h1>
+    <p class="subtitle">Open VS Code. Open the <code>hermes-lab</code> folder. We begin with Module 0.</p>
+    <div class="start-cmd">/run-workflow WF-04 999999</div>
+  </section>
+
+</div>
+
+<button class="nav-arrow prev" id="prevBtn" aria-label="Previous slide">‹</button>
+<button class="nav-arrow next" id="nextBtn" aria-label="Next slide">›</button>
+
+<div class="deck-footer">
+  <span class="nav-hint">← → arrow keys to navigate</span>
+  <span class="counter" id="counter">1 / 8</span>
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const counter = document.getElementById('counter');
+  const total = slides.length;
+  let current = 0;
+
+  function show(i) {
+    if (i < 0 || i >= total) return;
+    slides[current].classList.remove('active');
+    current = i;
+    slides[current].classList.add('active');
+    counter.textContent = (current + 1) + ' / ' + total;
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') { show(current + 1); e.preventDefault(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { show(current - 1); e.preventDefault(); }
+    else if (e.key === 'Home') { show(0); }
+    else if (e.key === 'End') { show(total - 1); }
+  });
+
+  document.getElementById('nextBtn').addEventListener('click', () => show(current + 1));
+  document.getElementById('prevBtn').addEventListener('click', () => show(current - 1));
+</script>
+</body>
+</html>
