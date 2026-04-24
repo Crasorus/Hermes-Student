@@ -4,6 +4,8 @@
 
 > Note: At any time you can put this file into preview mode by right clicking the file and selecting `Open Preview`
 
+> **How to read this guide:** `> Tip` = optional shortcut · `> Note` = background · **Checkpoint** = you must be able to do this before moving on. Unfamiliar term? `Hermes_Grimoire.md` in the project root is the canonical reference.
+
 ---
 
 ### What Hermes Is
@@ -20,11 +22,11 @@ Hermes is a **Clinical Supply Chain AI Agent Team** built for pharmaceutical tri
 
 By the end of this lab you will have built the **Optimization Agent** — a new member of the Hermes Clinical Supply Chain AI Agent Team.
 
-You will write skill files, an agent system prompt, and a workflow definition entirely in plain English (Markdown). No coding required.
+You will configure a study, and then build skills, an agent, and a workflow definition to analyze the supply chain for your study. You will do this entirely in plain English (Markdown). No coding required.
 
 **You will build:**
 
-- 4–5 skill definitions (the building blocks of agent capability)
+- 3+ skill definitions (the building blocks of agent capability)
 - One complete agent (README + system prompt)
 - One workflow definition
 
@@ -35,15 +37,16 @@ You will write skill files, an agent system prompt, and a workflow definition en
 - The Python runner code (black box — no coding needed)
 - Sample clinical data files
 - An agent brief handout that describes what your agent should do
+- the Grimoire - an encyclopedia that explains all aspects of Hermes
 
 ---
 
 ## Pre-requisites
 
 1. Visual Code
-2. Extension: Claude Code for VS Code-
+2. Extension: Claude Code for VS Code
 
-#### -(Optional)
+#### (Optional)
 
 3. Extension: Live Server
 
@@ -54,6 +57,10 @@ You will write skill files, an agent system prompt, and a workflow definition en
 Download `hermes-lab.zip` from the link your instructor provides.
 Extract it to a folder on your computer (e.g. `c:/hermes-lab`).
 
+#### The full project is available any time on github here:
+
+https://github.com/Crasorus/Hermes-Student
+
 ### Step 2: Open in VS Code
 
 1. Open VS Code
@@ -62,15 +69,26 @@ Extract it to a folder on your computer (e.g. `c:/hermes-lab`).
 
 ### Step 3: Test Claude Code
 
+> TIP: let's use the Haiku model. Hermes tends to run faster (and cheaper) with this model. Click on Show Commands `[/]` (square box with slash). Select `switch model`. Choose `Haiku`.
+>
+> Note: your instructor should have pre-configured your Anthropic API key. If Claude Code reports "API key not found", ask them to check the `.env` file.
+
 1. Open the Claude Code panel in VS Code (look for the Claude icon in the sidebar, or press `Ctrl+Shift+P` and type "Claude")
 2. Type: `What is Hermes?`
 3. You should get a response explaining the project. If you do — you are ready!
+
+#### Tips
+
+- Pin the Claude Code panel and open this guide in preview mode side-by-side — you will flip between them constantly.
+- Haiku for speed, Sonnet when you want stronger design suggestions. Switch any time with `/model`.
+- If Claude Code feels sluggish, confirm you are not accidentally on Opus — slower and pricier for this kind of work.
+- Keep one "reference file" open at all times (a skill, an agent, or the Grimoire). Never work from memory.
 
 ---
 
 ## Module 1 · Architecture Orientation (20 minutes)
 
-Before building anything, spend 10 minutes exploring what's already in the starter kit.
+Before building anything, take ~20 minutes to get oriented with what is already in the starter kit. The goal here is not to memorise anything — it is to know where things live so that when you build your own agent, the surrounding landscape makes sense.
 
 ### The 5 Layers of Hermes
 
@@ -88,7 +106,7 @@ Layer 1: STUDY PACKAGE     — your study's config + CSV data
 >
 > This is a deliberate design choice: it keeps the system accessible to non-technical users and easy to inspect, modify, and understand.
 >
-> A **production implementation** of Hermes would go one step further — using Anthropic's **Agent SDK** to give each agent its own autonomous runtime. Agents would call each other directly, spawn sub-tasks, and run end-to-end without a human in the loop between steps. Importantly, you could connect them directly to your data sources via an MCP server or other techique (Thus avoiding data drops). The Markdown files you write today would become the system prompts fed into those agent instances.
+> A **production implementation** of Hermes would go one step further — using Anthropic's **Agent SDK** to give each agent its own autonomous runtime. Agents would call each other directly, spawn sub-tasks, and run end-to-end without a human in the loop between steps. Importantly, you could connect them directly to your data sources via an MCP server or other technique (thus avoiding data drops). The Markdown files you write today would become the system prompts fed into those agent instances.
 >
 > So.. What you are building is the blueprint. The Agent SDK turns that blueprint into a fully autonomous system.
 
@@ -118,6 +136,11 @@ c:\Hermes\
 Open and read these files:
 
 **1. A Skill Definition:**
+
+> Note: .md (Markdown) — A lightweight markup format used to create readable, formatted documents using plain text. Designed primarily for human consumption, it supports simple styling such as headings, lists, links, and emphasis.
+
+> Note: .json (JavaScript Object Notation) — A structured data format used to represent information as key–value pairs. Designed for machine readability and data exchange between systems, it is commonly used in APIs, configurations, and data storage.
+
 Open `skills/SI-01_stock_position_calculator.md`
 
 Read it and understand:
@@ -143,17 +166,21 @@ Read it and answer:
 - What is a hermes workflow?
 - how many steps does the WF-02 have?
 
-**Checkpoint:** Can you explain "agent", "skill", and "workflow" in one sentence each?
+**Checkpoint:** Can you explain "agent", "skill", and "workflow" in one sentence each? If stuck, the Grimoire (`Hermes_Grimoire.md`) has a glossary — or just ask Claude Code: _"Explain agent, skill, and workflow in Hermes, one sentence each."_
 
-> Note: .md (Markdown) — A lightweight markup format used to create readable, formatted documents using plain text. Designed primarily for human consumption, it supports simple styling such as headings, lists, links, and emphasis.
+#### Tips
 
-> Note: .json (JavaScript Object Notation) — A structured data format used to represent information as key–value pairs. Designed for machine readability and data exchange between systems, it is commonly used in APIs, configurations, and data storage.
+- Read top-down: **Workflow → Agent → Skill**. The "why" lives at the top; the "how" at the bottom.
+- Skills are a _shared library_, not agent-owned. The same skill can be called by several agents.
+- Every agent has the same two-file shape (README + system_prompt). Learn the shape once, apply it seven times.
+- Open three files in a split view — a skill, an agent README, and `workflows.json` — so you can see how they reference each other.
+- The Grimoire usually answers "what is X?" faster than asking Claude.
 
 ---
 
-## Module 2 · Configure Your Study with the GUI (40 minutes)
+## Module 2 · Configure Your Study with the GUI (50 minutes)
 
-We need a test study for our analsis. You will create one from scratch.
+We need a test study for our analysis. You will create one from scratch.
 
 We will prepare Hermes for your study, then create the definition of your study, finally generate some test transactional data for your study.
 
@@ -165,7 +192,7 @@ Throughout this module, `<STUDY_ID>` means the Study ID printed on your Scenario
 
 First, create the folder skeleton that your configuration files will live in.
 
-Lets use a hermes command to do this, all our commands are located in the commands folder.
+Let's use a Hermes command to do this. All our commands live in the `.claude/commands/` folder.
 
 To invoke a command, you can call them directly In the Claude Code chat panel, run:
 
@@ -188,7 +215,7 @@ if 'LiveServer' extension is installed in your visual code environment you can r
 
 Otherwise...In the file explorer, navigate to [StudyDataCreation/index.html](../../StudyDataCreation/index.html).
 
-Right-click → **Open in Browser** (or double-click — it opens directly, no server required). If this doesnt work, you can locate the file on your disk `reveal in file explorer` and double click it from there.
+Right-click → **Open in Browser** (or double-click — it opens directly, no server required). If this doesn't work, you can locate the file on your disk via `Reveal in File Explorer` and double-click it from there.
 
 Take a moment to orient yourself. The left sidebar has three numbered steps — **Study Config**, **Supply Network**, **Policies** — plus a **Load Config** section you will use later to re-import files.
 
@@ -259,15 +286,102 @@ Find & Open each file in VS Code and skim it to confirm it captures your study c
 
 > Note: We are using this technique, it is basic, but effective, can be modified any time, and is easy to replicate for any data source. Just watch out for the file format. The file format spec is fully described in the Grimoire.
 
-#### Finally
+### 2h. Generate Your Test Data (≈5 minutes)
 
-if you get stuck, you can use the Sample study included with the Hermes package. This is study `9999999`
+While your study data is still loaded in the GUI, you will generate three CSV files that simulate your trial's first data drop.
+
+> **Important:** The GUI must show your study data to generate files that match your study's site IDs, arm IDs, and item IDs. If the browser has been closed or the fields are empty, use the **Load Config** buttons in the sidebar — **Load Study Config**, **Load Supply Network**, and **Load Policies** — to reload your three JSON files from `studies/<STUDY_ID>/config/` before continuing.
+
+In the **Create Actuals** section of the sidebar, download all three files:
+
+- **↓ Download ctms_plan.csv** — planned enrollment by site and period
+- **↓ Download erp_inventory.csv** — depot stock levels and batch data
+- **↓ Download rtsm_actuals.csv** — randomisation and dispensing events
+
+Each file lands in your browser's Downloads folder.
+
+**Create a dated folder** inside your study's data drop folder. Use today's date in `YYYY-MM-DD` format — for example `2026-04-22`:
+
+Move all three CSV files into that folder. (This date format is what the runner expects — sticking to it avoids "data drop not found" errors later.)
+
+You should now have:
+
+```
+studies/<STUDY_ID>/data_drops/<today>/
+  ├── rtsm_actuals.csv
+  ├── ctms_plan.csv
+  ├── erp_inventory.csv
+  └── site_inventory.csv
+```
+
+**Run the pre-flight check** to confirm your study package and data drop are valid:
+
+```
+/preflight
+```
+
+Hermes will read your config files and data drop, run integrity checks, and report back. A `PASS` or `WARNING` status means you are ready to proceed. If it reports `FAIL`, read the recommendations and fix any critical issues before moving on.
+
+**Checkpoint:** `/preflight` reports `PASS` or `WARNING` and three CSV files sit in `studies/<STUDY_ID>/data_drops/2026-04-22/` (today's date).
+
+> **If you get stuck:** a fully-populated sample study is included with Hermes as study `9999999`. You can substitute it anywhere `<STUDY_ID>` appears below and still complete the lab.
+
+---
+
+### 2i. Run a Full Workflow Chain (≈5 minutes)
+
+With your data drop in place and pre-flight passed, run the standard end-to-end chain against your new study. This gives you a **working baseline** before you start building — you will see how the existing agents behave so your own agent has something to compare to. It executes three workflows in sequence — demand analysis, supply planning, and execution — using the config and CSV files you just created.
+
+In the Claude Code chat panel, run:
+
+```
+/run-workflow-chain <STUDY_ID> WF-01 WF-02 WF-05
+```
+
+Replace `<STUDY_ID>` with your Study ID (for example `STUDY-LAB-01`). The runner will automatically pick up the data drop folder you created in step 2h.
+
+Watch the agents execute. You will see each workflow step complete in order, with its findings, any routing signals emitted, and a summary banner at the end.
+
+> **Tip:** If the runner cannot find your data drop folder, pass the date explicitly as the last argument in `YYYY-MM-DD` format — for example `/run-workflow-chain STUDY-LAB-01 WF-01 WF-02 WF-05 2026-04-22`.
+
+### 2j. Review and Save the Outputs (≈3 minutes)
+
+When all three workflows complete, the runner will display a final summary banner and then ask:
+
+> **"Would you like me to save the outputs to `studies/<STUDY_ID>/outputs/`?"**
+
+Type **yes**. The runner will write two files into `studies/<STUDY_ID>/outputs/<date>/`:
+
+| File                                     | Contents                                        |
+| ---------------------------------------- | ----------------------------------------------- |
+| `chain_WF-01_WF-02_WF-05_run_summary.md` | Full narrative output from every agent step     |
+| `chain_WF-01_WF-02_WF-05_outputs.json`   | Structured JSON with workflow and step metadata |
+
+Once saved, open `chain_WF-01_WF-02_WF-05_run_summary.md` in VS Code and review it:
+
+- **What signals were emitted?** Look for keywords like `DEMAND_DEVIATION`, `REORDER_REQUIRED`, or `HALT` in the findings sections.
+- **Did all three workflows complete?** The final summary banner lists how many steps ran and how many were skipped.
+- **What did the Supply Analyst recommend?** Find the WF-02 section and read its key findings.
+- **Were any integrity warnings carried forward?** Check whether the pre-flight `WARNING` status (if you got one) is referenced in later agent outputs.
+
+**Checkpoint:** Two output files exist in `studies/<STUDY_ID>/outputs/<date>/` and you can identify at least one finding from the chain.
+
+> **Before you move on — save your progress.** You are about to modify `/skills/`, `/agents/`, and `workflows.json`. If you break something later, it is easier to restore if you snapshot now. Either run `git add -A && git commit -m "lab baseline"` in a terminal, or just zip your `hermes-lab` folder as a backup.
+
+#### Tips
+
+- The Scenario Card is a starting point, not a contract — adjust values that feel unrealistic.
+- Use short, memorable IDs (`SITE-01`, not `CLINICAL-SITE-BOSTON-MASS-001`). You will type them a lot.
+- IDs must match **exactly** across the three JSONs and the CSVs — one typo in `ARM-A` vs `ARM_A` costs 20 minutes later.
+- Don't try to save directly into `config/` — the browser drops files in Downloads; move them manually.
+- To edit a study, use the **Load** buttons in the GUI sidebar. Never re-type from scratch.
+- Run `/preflight` **before and after** any change to the data drop — it catches 90% of problems at their source.
 
 ---
 
 ## Module 3 · Meet the Optimization Agent (15 minutes)
 
-Before writing anything, read the brief that describes your task.
+We are going to simply design the agent. Not build it. We build it later in Module 5. Before writing anything, read the brief that describes your task. Before writing anything, read the brief that describes your task.
 
 ### Step 1: Open the Agent Brief
 
@@ -293,6 +407,13 @@ Before you open any files, answer these questions in your own words:
 
 **Checkpoint:** You can explain what each of your planned skills does.
 
+#### Tips
+
+- Plan on paper or in a scratch note — it is faster than typing and forces brevity.
+- Resist reading the reference answer. The design decisions _are_ the lab.
+- If the brief feels ambiguous, that is normal — it is _your_ design.
+- Name your agent's purpose in one sentence before you name any skill. If you can't, the scope is too wide.
+
 ---
 
 ## Module 4 · Write Your Skills (40 minutes)
@@ -308,6 +429,16 @@ A skill is a reusable procedure — it describes exactly how an agent solves one
 - What steps do I follow?
 - What do I return?
 
+**A skill file has seven sections** (see `lab/templates/skill_template.md`):
+
+1. **Purpose** — what the skill does, in 2–3 sentences
+2. **Owner** — which agent uses this skill
+3. **When This Skill Is Used** — the workflow and trigger
+4. **Inputs** — data files, config values, outputs from other skills
+5. **Steps** — the numbered procedure (4–6 steps)
+6. **Output** — what the skill returns
+7. **Notes** — caveats and limitations (optional)
+
 ### Step 1: Create Your First Skill File
 
 1. In the `/skills/` folder, create a new file
@@ -317,23 +448,39 @@ A skill is a reusable procedure — it describes exactly how an agent solves one
 3. Open `lab/templates/skill_template.md` for the template
 4. Copy the template into your new file and fill in all sections
 
-**Target: 3+ skills.** Repeat for OA-02, OA-03, OA-04, OA-05 etcc.
+**Target: at least 3 skills** (3–5 is a good range). Repeat for OA-02, OA-03, and so on.
+
+> **Tip — build one at a time.** Write OA-01, then jump ahead briefly and check that Claude can read and summarise it (_"Read skills/OA-01 and tell me what it does"_). Fix issues there, **then** write OA-02. It is much easier than writing all five first and debugging a wall of errors later.
 
 ### Suggested Skill Types (pick your own names)
 
-| #     | Type of Analysis                      | Data File               |
-| ----- | ------------------------------------- | ----------------------- |
-| OA-01 | Something about depot stock levels    | erp_inventory.csv       |
-| OA-02 | Something about batch expiry dates    | erp_inventory.csv       |
-| OA-03 | Something about site consumption      | site_inventory.csv      |
-| OA-04 | Something about shipment patterns     | erp_inventory.csv       |
-| OA-05 | Turning findings into recommendations | Outputs of other skills |
+| #     | Example focus                                                     | Data file                             |
+| ----- | ----------------------------------------------------------------- | ------------------------------------- |
+| OA-01 | Detect depots holding stock above the max-weeks policy            | `erp_inventory.csv` + `policies.json` |
+| OA-02 | Flag lots likely to expire before they can be consumed            | `erp_inventory.csv`                   |
+| OA-03 | Spot sites with stock but zero recent dispensing                  | `site_inventory.csv`                  |
+| OA-04 | Identify lanes with repeated emergency or over-frequent shipments | `erp_inventory.csv`                   |
+| OA-05 | Convert findings from OA-01..04 into 1–3 concrete recommendations | outputs of other skills               |
+
+_These are starting points, not a rubric — rename, reshape, or replace any of them._
 
 > **Tip:** Keep each skill focused on one type of analysis. If a skill tries to do too much, split it.
 
 > **Tip:** Claude will help you. Ask Claude Code: _"Is my skill file complete? Does it have all 6 sections?"_
 
+> **What good looks like.** A well-written skill produces a finding a human can act on in one sentence. Example:
+> _"Depot APAC-01 holds 14 weeks of ARM-A kit stock against an 8-week target — 6 weeks excess, flag as `OPTIMIZATION_OPPORTUNITY`."_
+> If your skill's output cannot be phrased this crisply, its scope is probably too broad.
+
 **Checkpoint:** 3+ skill files in `/skills/` with all sections filled in, no TODO markers remaining.
+
+#### Tips
+
+- Name every skill with a **verb** (`calculate_`, `detect_`, `flag_`). Verbs force single responsibility.
+- One skill, one CSV input — crossing files is usually a sign the skill is two skills.
+- Stub _all_ your skills first as one-line descriptions, then flesh each out. You see the whole map before committing to detail.
+- Reference other skills by ID (`see OA-02`), never by copy-paste.
+- If Claude rewrites your skill and it now does too much, push back — terse beats comprehensive.
 
 ---
 
@@ -383,19 +530,31 @@ Work through each section:
 
 > **Tip:** Look at the existing `demand_analyst/system_prompt.md` for tone and level of detail.
 
+> **Signals your agent should emit.** Your workflow will declare three routing signals in Module 6. Use them consistently in your system prompt:
+>
+> - **`OPTIMIZATION_OPPORTUNITY`** — excess stock, avoidable waste, a cheaper or faster alternative exists.
+> - **`CRITICAL_WASTE_RISK`** — near-term expiry, stranded stock, or an imminent loss if nobody acts.
+> - **`NO_ACTION`** — the agent ran cleanly and found nothing worth flagging. (Not the same as an error — emit this deliberately when the data is fine.)
+
 **Checkpoint:** `agents/optimization_agent/system_prompt.md` is complete with all sections filled in and at least one routing signal decision rule.
+
+> **Common pitfalls — check before you move on:**
+>
+> - Your Skills Table lists a skill that does not exist as a file in `/skills/` → the agent will fail silently.
+> - Your agent folder is named something other than `optimization_agent` → the workflow in Module 6 will not resolve it.
+> - Your Procedure never says "emit signal X when Y" → the agent will finish without emitting anything.
+
+#### Tips
+
+- Write the system prompt as prose, not bullet salad — instructions to a smart colleague, not a spec sheet.
+- The Procedure section should read like a runbook — someone could follow it without knowing the domain.
+- Halt conditions are how you stay safe — be generous. A halt is cheap; a bad output isn't.
+- Start by copy-pasting `demand_analyst/system_prompt.md`, then edit. A blank page is the hardest place to start.
+- An agent only "knows about" skills you list in its Skills Table. If you wrote OA-05 but forgot to list it, it will never run.
 
 ---
 
 ## Module 6 · Define Your Workflow (15 minutes)
-
-<!-- ============================================================
-     MODULE 6: Students add WF-OA-01 to workflows.json.
-     Key things to explain:
-     1. The JSON schema (model on WF-01)
-     2. Adding routing signals to the global array
-     3. The agent name must match the folder name exactly
-     ============================================================ -->
 
 Now define the workflow that runs your agent.
 
@@ -435,9 +594,16 @@ Add a new entry to the `workflows` object:
 
 **Important:** The `"agent"` value must exactly match your folder name in `/agents/`.
 
-> **Tip:** Ask Claude Code: _"Is my workflows.json valid JSON? Check for missing commas or brackets."_
+> **Tip:** Ask Claude Code: _"Is my workflows.json valid JSON? Check for missing commas or brackets."_ VS Code will also underline JSON errors in red the moment you save the file — if you see a red squiggle, hover it for the exact problem.
 
-**Checkpoint:** `workflows/workflows.json` is valid JSON with your WF-OA-01 workflow defined.
+**Checkpoint:** `workflows/workflows.json` is valid JSON (no red squiggles in VS Code) with your WF-OA-01 workflow defined and its three signals added to the global `routing_signals` array.
+
+#### Tips
+
+- One missing comma breaks the whole file. Save and glance for red squiggles after every edit.
+- The `"agent"` value must match the folder name in `/agents/` **exactly** — case-sensitive, spelling-sensitive.
+- Signals must appear in **two** places: the global `routing_signals` array **and** the agent's system prompt.
+- Write the `"task"` field as a concrete instruction, not a vague mission. _"Analyse optimisation opportunities in the depot network"_ beats _"do optimisation"_.
 
 ---
 
@@ -454,14 +620,15 @@ You should see a folder with today's date containing these CSV files:
 - `rtsm_actuals.csv`
 - `ctms_plan.csv`
 - `erp_inventory.csv`
-- `site_inventory.csv`
+- `site_inventory.csv` _(optional — only required if one of your skills reads it; generate it from the GUI or ask your instructor if missing)_
 
-If any file is missing, ask your instructor for the sample data files.
+If a file your agent relies on is missing, either regenerate it from the Study Data Creation GUI or ask your instructor for the sample file.
 
 ### Step 2: Run the Workflow Chain
 
-> Tip: Hermes runs well with the `Haiku` model. Use it to save tokens. Design with sonnnet, run with haiku
-> In the Claude Code chat panel, type:
+> **Tip:** Hermes runs well with the `Haiku` model. Use it to save tokens. **Design with Sonnet, run with Haiku.**
+
+In the Claude Code chat panel, type:
 
 ```
 /run-workflow-chain <STUDY_ID> WF-01 WF-OA-01
@@ -486,17 +653,25 @@ Open the chain output file. Read through it and find:
 
 **Checkpoint:** `/run-workflow-chain` produced an output file. You can identify at least one finding from your agent.
 
+#### Tips
+
+- First run often fails. Read the error message; don't just re-run.
+- Design with Sonnet, run with Haiku — saves tokens and time without much quality loss.
+- Each run creates a dated output folder, so you can re-run freely and compare side-by-side.
+- Don't trust a "completed" banner on its own. Open the output and read at least one finding — a workflow can complete with empty results.
+- After the run, ask the agent follow-up questions in chat — that is where the real insight usually surfaces.
+
 ### BONUS: Ask your agents questions about your study
 
-Ask anything. Guage for yourself the quality of the results.
+Once the chain has run, try interrogating your agents in natural language. Gauge the quality of the answers for yourself.
 
 Some example questions:
 
-1. What happens if the study start date is dealyed by 3 months.
-2. What happens if the study dispensing is paused for 8 weeks
+1. What happens if the study start date is delayed by 3 months?
+2. What happens if study dispensing is paused for 8 weeks?
 3. What happens if we close down site 'X'?
-4. What might be the impact on sites and future dispensing if i have to a qurantine lot 'Y'?
-5. Clinical wish to determine impact on supply chain if they add a new country, and try and use existing supplies. Give me a check list of questions to ask clinical at an upcoming 'discovery' meeting.
+4. What might be the impact on sites and future dispensing if I have to quarantine lot 'Y'?
+5. Clinical wish to determine impact on the supply chain if they add a new country and try to use existing supplies. Give me a checklist of questions to ask clinical at an upcoming 'discovery' meeting.
 
 ---
 
@@ -519,6 +694,12 @@ After the lab, the reference implementation will be available at:
 4. What would you change about your agent's instructions to make it more useful?
 5. Where could you apply this kind of optimization agent in your own work?
 
+#### Tips
+
+- Comparison > perfection. Two valid designs will disagree — that is the interesting part.
+- An agent that emits `NO_ACTION` is a valid result, not a failure. Check the thresholds before "fixing" it.
+- One takeaway you would actually apply at work is worth more than a flawless implementation.
+
 ---
 
 ## Completion Checklist
@@ -529,7 +710,7 @@ Check off each item as you complete it:
 - [ ] **M1:** Can explain "agent", "skill", and "workflow" in one sentence each
 - [ ] **M2:** Study folder initialised via `/init-study`, and three config files generated from the Study Data Creation GUI and placed in `studies/<STUDY_ID>/config/`
 - [ ] **M3:** Can describe in one sentence what each of your planned skills does
-- [ ] **M4:** 4–5 skill files in `/skills/` with prefix `OA-`, all sections filled in
+- [ ] **M4:** At least 3 skill files in `/skills/` with prefix `OA-`, all sections filled in
 - [ ] **M5:** `agents/optimization_agent/system_prompt.md` complete with routing signals and halt conditions
 - [ ] **M6:** `WF-OA-01` defined in `workflows/workflows.json` with new signals added
 - [ ] **M7:** `/run-workflow-chain <STUDY_ID> WF-01 WF-OA-01` ran and produced output
@@ -565,3 +746,9 @@ Open `agents/optimization_agent/system_prompt.md` (the reference). Compare your 
 
 **Option D — Write a Sixth Skill**
 Add a skill `OA-06` that does something new — for example, a Budget Impact Estimator that estimates the cost of the waste your agent found.
+
+## Ideas for other skills:
+
+1. Financial Advisor - reviews cost of decisions. Would be data heavy. Would work well with the Optimization Agent
+2. Capacity Agent - Reviews and make recommendations on capacity questions across your factory, and even depots
+3. Site Experience Agent - Train an agent to appear like a clinical site. How are decisions you are making in the supply network impacting the site. Guage their satisfication by asking the Site Experience Analyst to review your decisions.

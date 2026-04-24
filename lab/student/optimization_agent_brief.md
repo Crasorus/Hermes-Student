@@ -96,7 +96,7 @@ Your agent can read these files (already in your study package):
 
 By the end of the lab, you need:
 
-1. **4–5 skill files** in `/skills/` — one for each type of analysis your agent can do
+1. **3–5 skill files** in `/skills/` (4 is the sweet spot) — one for each type of analysis your agent can do
    - Use `lab/templates/skill_template.md` as your template
    - Name them with the prefix `OA-` (e.g., `OA-01_my_skill_name.md`)
 
