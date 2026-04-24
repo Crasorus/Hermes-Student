@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hermes — Architecture Map</title>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;1,9..144,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --canvas: #06090f;
+    --border-subtle: rgba(255,255,255,0.06);
+    --border-hover: rgba(255,255,255,0.12);
+    --text-hero: #edf2f7;
+    --text-primary: #c9d5e3;
+    --text-secondary: #6a7b91;
+    --text-tertiary: #3d4f63;
+    --glow-base: 0.12;
+    --glow-active: 0.6;
+    --glow-dim: 0.025;
+    --tooltip-bg: rgba(10, 15, 26, 0.95);
+    --tooltip-border: rgba(255,255,255,0.1);
+    --overlay-grain: 0.03;
+    --tag-bg: rgba(255,255,255,0.05);
+    --tag-text: rgba(255,255,255,0.5);
+    --toggle-label: #4a5e75;
+    --toggle-track: rgba(255,255,255,0.08);
+    --stat-num: #edf2f7;
+    --cat-bg: rgba(255,255,255,0.03);
+    --cat-border: rgba(255,255,255,0.06);
+    --expand-hint: rgba(255,255,255,0.2);
+  }
+  [data-theme="light"] {
+    --canvas: #f0ece4;
+    --border-subtle: rgba(0,0,0,0.07);
+    --border-hover: rgba(0,0,0,0.15);
+    --text-hero: #1a1612;
+    --text-primary: #3d3529;
+    --text-secondary: #7a7062;
+    --text-tertiary: #b0a898;
+    --glow-base: 0.18;
+    --glow-active: 0.6;
+    --glow-dim: 0.04;
+    --tooltip-bg: rgba(255, 252, 247, 0.97);
+    --tooltip-border: rgba(0,0,0,0.1);
+    --overlay-grain: 0.015;
+    --tag-bg: rgba(0,0,0,0.05);
+    --tag-text: rgba(0,0,0,0.45);
+    --toggle-label: #7a7062;
+    --toggle-track: rgba(0,0,0,0.08);
+    --stat-num: #1a1612;
+    --cat-bg: rgba(0,0,0,0.03);
+    --cat-border: rgba(0,0,0,0.07);
+    --expand-hint: rgba(0,0,0,0.25);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--canvas);
+    color: var(--text-primary);
+    font-family: 'Outfit', sans-serif;
+    overflow-x: hidden;
+    transition: background 0.5s cubic-bezier(0.4,0,0.2,1), color 0.4s;
+    min-height: 100vh;
+  }
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    pointer-events: none; z-index: 9999;
+    opacity: var(--overlay-grain);
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    mix-blend-mode: overlay;
+  }
+
+  .masthead {
+    max-width: 1400px; margin: 0 auto;
+    padding: 48px 48px 0;
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 32px;
+  }
+  .masthead-left { flex: 1; }
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; font-weight: 500; letter-spacing: 3px;
+    text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 12px;
+  }
+  .masthead h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(32px, 4vw, 52px); font-weight: 700;
+    color: var(--text-hero); letter-spacing: -1.5px; line-height: 1.05; margin-bottom: 12px;
+  }
+  .masthead h1 em { font-style: italic; font-weight: 300; opacity: 0.6; }
+  .masthead-desc {
+    font-size: 16px; color: var(--text-secondary); line-height: 1.6;
+    max-width: 520px; font-weight: 300;
+  }
+  .stats-row {
+    display: flex; gap: 40px; margin-top: 28px; padding-top: 24px;
+    border-top: 1px solid var(--border-subtle);
+  }
+  .stat-num {
+    font-family: 'Fraunces', serif; font-size: 28px; font-weight: 700;
+    color: var(--stat-num); line-height: 1;
+  }
+  .stat-label {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--text-tertiary); margin-top: 4px;
+  }
+
+  .theme-switch {
+    display: flex; align-items: center; gap: 10px; margin-top: 8px; flex-shrink: 0;
+  }
+  .theme-switch label {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    letter-spacing: 1px; text-transform: uppercase;
+    color: var(--toggle-label); cursor: pointer; transition: color 0.3s;
+  }
+  .theme-switch label:hover { color: var(--text-secondary); }
+  .theme-switch label.active { color: var(--text-primary); }
+  .switch-track {
+    width: 44px; height: 24px; border-radius: 12px;
+    background: var(--toggle-track); border: 1px solid var(--border-subtle);
+    cursor: pointer; position: relative;
+  }
+  .switch-knob {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--text-secondary); position: absolute; top: 2px; left: 2px;
+    transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+  }
+  [data-theme="light"] .switch-knob { transform: translateX(20px); }
+
+  .legend-bar {
+    max-width: 1400px; margin: 0 auto;
+    padding: 28px 48px 16px;
+    display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+  }
+  .legend-chip {
+    display: flex; align-items: center; gap: 7px;
+    padding: 5px 12px; border-radius: 100px;
+    background: var(--tag-bg); border: 1px solid var(--border-subtle);
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 500;
+    color: var(--tag-text); letter-spacing: 0.5px; text-transform: uppercase;
+    user-select: none; transition: border-color 0.2s;
+  }
+  .legend-chip:hover { border-color: var(--border-hover); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+  #viz-wrap {
+    max-width: 1400px; margin: 0 auto;
+    padding: 8px 24px 60px;
+  }
+
+  /* Tooltip */
+  .tip {
+    position: fixed; pointer-events: none; z-index: 100;
+    opacity: 0; transition: opacity 0.15s; max-width: 320px;
+  }
+  .tip-inner {
+    background: var(--tooltip-bg); border: 1px solid var(--tooltip-border);
+    border-radius: 12px; padding: 14px 18px;
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  }
+  .tip-badge {
+    display: inline-block; padding: 3px 10px; border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600;
+    letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; color: #fff;
+  }
+  .tip-title { font-weight: 600; font-size: 16px; color: var(--text-hero); margin-bottom: 6px; }
+  .tip-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.5; font-weight: 300; }
+  .tip-meta {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    color: var(--text-tertiary); margin-top: 8px; padding-top: 8px;
+    border-top: 1px solid var(--border-subtle);
+  }
+  .tip-skills {
+    margin-top: 8px; display: flex; flex-wrap: wrap; gap: 4px;
+  }
+  .tip-skill-tag {
+    font-family: 'JetBrains Mono', monospace; font-size: 10.5px;
+    padding: 3px 7px; border-radius: 3px; background: var(--tag-bg);
+    color: var(--text-secondary);
+  }
+
+  /* SVG text classes */
+  .col-label {
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600;
+    fill: var(--text-tertiary); letter-spacing: 3px; text-transform: uppercase;
+  }
+  .col-count {
+    font-family: 'Fraunces', serif; font-size: 26px; font-weight: 700;
+    fill: var(--text-tertiary);
+  }
+  .node-group { cursor: pointer; }
+  .node-group .node-label {
+    font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 500;
+    fill: var(--text-hero); pointer-events: none;
+  }
+  .node-group .node-id {
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600;
+    pointer-events: none;
+  }
+  .node-group.dimmed .node-bg { opacity: 0.05 !important; }
+  .node-group.dimmed .node-label,
+  .node-group.dimmed .node-id { opacity: 0.07 !important; }
+  .node-group.dimmed .cat-count { opacity: 0.07 !important; }
+  .node-group.dimmed .cat-name { opacity: 0.07 !important; }
+  .node-group.dimmed .expand-arrow { opacity: 0 !important; }
+
+  .flow-link { fill: none; }
+  .flow-link.lit { stroke-opacity: var(--glow-active) !important; }
+  .flow-link.dimmed { stroke-opacity: var(--glow-dim) !important; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .masthead { animation: fadeUp 0.6s cubic-bezier(0.16,1,0.3,1) both; }
+  .legend-bar { animation: fadeUp 0.6s 0.1s cubic-bezier(0.16,1,0.3,1) both; }
+  #viz-wrap { animation: fadeUp 0.6s 0.2s cubic-bezier(0.16,1,0.3,1) both; }
+</style>
+</head>
+<body data-theme="dark">
+
+<div class="masthead">
+  <div class="masthead-left">
+    <div class="eyebrow">Clinical Supply Chain AI</div>
+    <h1>Architecture <em>Map</em></h1>
+    <p class="masthead-desc">Workflows route through agents, each owning specialised skills. Click an agent or category to expand its skills. Hover anything to trace connections.</p>
+    <div class="stats-row">
+      <div class="stat"><div class="stat-num">11</div><div class="stat-label">Workflows</div></div>
+      <div class="stat"><div class="stat-num">7</div><div class="stat-label">Agents</div></div>
+      <div class="stat"><div class="stat-num">73</div><div class="stat-label">Skills</div></div>
+      <div class="stat"><div class="stat-num">8</div><div class="stat-label">Categories</div></div>
+    </div>
+  </div>
+  <div class="theme-switch">
+    <label id="lbl-dark" class="active">Dark</label>
+    <div class="switch-track" id="themeToggle"><div class="switch-knob"></div></div>
+    <label id="lbl-light">Light</label>
+  </div>
+</div>
+
+<div class="legend-bar" id="legend"></div>
+<div id="viz-wrap"></div>
+<div class="tip" id="tip"><div class="tip-inner" id="tipInner"></div></div>
+
+<script>
+// ═══ THEME ═══
+const toggle = document.getElementById('themeToggle');
+const lblD = document.getElementById('lbl-dark'), lblL = document.getElementById('lbl-light');
+const saved = localStorage.getItem('hermes-arch-theme');
+if (saved) document.body.setAttribute('data-theme', saved);
+else if (!window.matchMedia('(prefers-color-scheme: dark)').matches) document.body.setAttribute('data-theme', 'light');
+syncL();
+toggle.addEventListener('click', flip);
+lblD.addEventListener('click', () => setT('dark'));
+lblL.addEventListener('click', () => setT('light'));
+function flip() { setT(document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); }
+function setT(t) { document.body.setAttribute('data-theme', t); localStorage.setItem('hermes-arch-theme', t); syncL(); }
+function syncL() { const d = document.body.getAttribute('data-theme') === 'dark'; lblD.classList.toggle('active', d); lblL.classList.toggle('active', !d); }
+
+// ═══ DATA ═══
+const agents = [
+  { id:"supervisor", name:"Supervisor", color:"#d97706", skills:["SO-01","SO-02","SO-03","SO-04","SO-05","SO-06","SO-07","DI-01","DI-02","DI-09","DI-10"], desc:"Orchestrator — validates data, routes workflows, logs audit trails" },
+  { id:"demand_analyst", name:"Demand Analyst", color:"#059669", skills:["DI-03","DI-05","DF-01","DF-02","DF-03","DF-04","DF-05","DF-06","DF-07","DF-08","DF-09"], desc:"Analyses consumption, enrollment, demand deltas, and scenarios" },
+  { id:"supply_analyst", name:"Supply Analyst", color:"#2563eb", skills:["DI-04","DI-06","DI-07","SI-01","SI-02","SI-03","SI-04","SI-05","SI-06","SI-07","SI-08","SI-09","SI-10"], desc:"Calculates stock positions, safety stock, reorder points, order quantities" },
+  { id:"logistics_specialist", name:"Logistics", color:"#7c3aed", skills:["LT-01","LT-02","LT-03","LT-04","LT-05","LT-06","LT-07","LT-08"], desc:"Plans shipments, lead times, vendor selection, cold chain" },
+  { id:"compliance_manager", name:"Compliance", color:"#dc2626", skills:["DI-08","CO-01","CO-02","CO-03","CO-04","CO-05","CO-06","CO-07","CO-08","CO-09","CO-10"], desc:"Ensures GxP compliance, label requirements, shelf life, audit trails" },
+  { id:"insights_analyst", name:"Insights", color:"#db2777", skills:["AI-01","AI-02","AI-03","AI-04","AI-05","AI-06","AI-07","AI-08","AI-09"], desc:"Detects hot spots, anomalies, risks; KPIs and shortage probabilities" },
+  { id:"reporting_agent", name:"Reporting", color:"#0d9488", skills:["RC-01","RC-02","RC-03","RC-04","RC-05","RC-06","RC-07","RC-08","RC-09","RC-10"], desc:"Generates executive summaries, deviation reports, dashboard data" }
+];
+const workflows = [
+  { id:"WF-01", name:"Demand Signal Refresh", agents:["supervisor","demand_analyst","reporting_agent"] },
+  { id:"WF-02", name:"Supply Plan Adjustment", agents:["supervisor","supply_analyst","logistics_specialist","compliance_manager","reporting_agent"] },
+  { id:"WF-03", name:"Hot Spot Surveillance", agents:["supervisor","insights_analyst","reporting_agent"] },
+  { id:"WF-04", name:"Plan Scoring & Review", agents:["supervisor","demand_analyst","supply_analyst","logistics_specialist","compliance_manager","insights_analyst","reporting_agent"] },
+  { id:"WF-05", name:"Supply Plan Execution", agents:["supervisor","supply_analyst","compliance_manager","reporting_agent"] },
+  { id:"WF-06", name:"Executive Report", agents:["supervisor","reporting_agent"] },
+  { id:"WF-07", name:"Budget Review", agents:["supervisor","supply_analyst","reporting_agent"] },
+  { id:"WF-08", name:"Protocol Change", agents:["supervisor","compliance_manager","demand_analyst","reporting_agent"] },
+  { id:"WF-09", name:"Deviation Response", agents:["supervisor","compliance_manager","insights_analyst","reporting_agent"] },
+  { id:"WF-10", name:"Study Start-Up", agents:["supervisor","demand_analyst","supply_analyst","logistics_specialist","compliance_manager","reporting_agent"] },
+  { id:"WF-11", name:"Study Closedown", agents:["supervisor","compliance_manager","supply_analyst","reporting_agent"] }
+];
+const skillCats = [
+  { px:"SO", name:"Supervision", color:"#d97706" },
+  { px:"DI", name:"Data Ingestion", color:"#d97706" },
+  { px:"DF", name:"Demand & Forecast", color:"#059669" },
+  { px:"SI", name:"Supply & Inventory", color:"#2563eb" },
+  { px:"LT", name:"Logistics & Trade", color:"#7c3aed" },
+  { px:"CO", name:"Compliance", color:"#dc2626" },
+  { px:"AI", name:"Analytics & Insights", color:"#db2777" },
+  { px:"RC", name:"Reporting", color:"#0d9488" }
+];
+const SN = {
+  "SO-01":"Workflow Router","SO-02":"Study Registry Mgr","SO-03":"Conflict Resolver",
+  "SO-04":"Status Tracker","SO-05":"Priority Ranker","SO-06":"Exception Handler","SO-07":"Run Summary Gen",
+  "DI-01":"Manifest Checker","DI-02":"Schema Validator","DI-03":"RTSM Parser","DI-04":"ERP Parser",
+  "DI-05":"CTMS Parser","DI-06":"Network Loader","DI-07":"Policy Loader","DI-08":"Reference Loader",
+  "DI-09":"Config Loader","DI-10":"Quality Scorer",
+  "DF-01":"Consumption Rate Calc","DF-02":"Enrollment Tracker","DF-03":"Demand Delta Calc",
+  "DF-04":"Delta Significance","DF-05":"Scenario Modeller","DF-06":"Country Demand Agg",
+  "DF-07":"Arm-Level Demand","DF-08":"Seasonal Adjuster","DF-09":"Baseline Comparator",
+  "SI-01":"Stock Position Calc","SI-02":"Weeks of Supply","SI-03":"Expiry Analyser",
+  "SI-04":"Safety Stock Calc","SI-05":"Reorder Point Calc","SI-06":"Order Qty Calc",
+  "SI-07":"Depot Allocation","SI-08":"Destruction Eligibility","SI-09":"Supply Plan Scorer","SI-10":"Batch Selector",
+  "LT-01":"Lead Time Calc","LT-02":"Shipping Window","LT-03":"Cold Chain Validator",
+  "LT-04":"Customs Checker","LT-05":"Vendor Selector","LT-06":"Shipping Request Gen",
+  "LT-07":"Import Permit Check","LT-08":"Customs Docs",
+  "CO-01":"Protocol Compliance","CO-02":"Label Validator","CO-03":"Shelf Life Checker",
+  "CO-04":"Expiry Enforcer","CO-05":"Protocol Change Impact","CO-06":"Deviation Logger",
+  "CO-07":"Regulatory Reporter","CO-08":"Audit Trail Logger","CO-09":"Destruction Approver","CO-10":"Recall Handler",
+  "AI-01":"Hot Spot Detector","AI-02":"Anomaly Scanner","AI-03":"Risk Scorer",
+  "AI-04":"KPI Calculator","AI-05":"Shortage Probability","AI-06":"Trend Analyser",
+  "AI-07":"Cross-Signal Correlator","AI-08":"What-If Simulator","AI-09":"Early Warning",
+  "RC-01":"Demand Summary","RC-02":"Executive Report","RC-03":"ClinOps Report",
+  "RC-04":"Budget Report","RC-05":"Hot Spot Alert","RC-06":"Protocol Change Report",
+  "RC-07":"Start-Up Report","RC-08":"Deviation Report","RC-09":"Dashboard Publisher","RC-10":"Narrative Summariser"
+};
+
+// Build category data with skills
+const catData = skillCats.map(cat => {
+  const skills = [];
+  agents.forEach(a => a.skills.forEach(s => {
+    if (s.startsWith(cat.px + '-') && !skills.find(x => x === s)) skills.push(s);
+  }));
+  skills.sort();
+  return { ...cat, skills, id: 'CAT-' + cat.px };
+});
+
+// Legend
+const legendEl = document.getElementById('legend');
+[{ label: 'Workflows', color: '#6366f1' }, ...agents.map(a => ({ label: a.name, color: a.color }))].forEach(item => {
+  const c = document.createElement('div'); c.className = 'legend-chip';
+  c.innerHTML = `<div class="legend-dot" style="background:${item.color}"></div>${item.label}`;
+  legendEl.appendChild(c);
+});
+
+// ═══ LAYOUT ═══
+const M = { t: 56, r: 40, b: 48, l: 40 };
+const COL_W = 240, COL_GAP = 180, NODE_H = 40, WF_GAP = 6, AG_GAP = 16;
+const CAT_H = 46, CAT_GAP = 8, SK_H = 30, SK_GAP = 3;
+const SK_W = 280;
+
+const wfX = M.l;
+const agX = M.l + COL_W + COL_GAP;
+const skX = M.l + COL_W + COL_GAP + COL_W + COL_GAP;
+const W = skX + SK_W + M.r;
+
+// Workflow nodes
+const wfNodes = workflows.map((wf, i) => ({
+  ...wf, x: wfX, y: M.t + 36 + i * (NODE_H + WF_GAP),
+  w: COL_W, h: NODE_H, type: 'wf', color: '#6366f1'
+}));
+
+// Agent nodes — vertically centered to workflows
+const totalWfSpan = wfNodes.length * (NODE_H + WF_GAP);
+const totalAgSpan = agents.length * (NODE_H + AG_GAP);
+const agOff = M.t + 36 + (totalWfSpan - totalAgSpan) / 2;
+const agNodes = agents.map((a, i) => ({
+  ...a, x: agX, y: agOff + i * (NODE_H + AG_GAP),
+  w: COL_W, h: NODE_H, type: 'ag'
+}));
+
+// Category summary nodes (collapsed) — vertically centered to workflows
+const totalCatSpan = catData.length * (CAT_H + CAT_GAP);
+const catOff = M.t + 36 + (totalWfSpan - totalCatSpan) / 2;
+const catNodes = catData.map((cat, i) => ({
+  ...cat, x: skX, y: catOff + i * (CAT_H + CAT_GAP),
+  w: SK_W, h: CAT_H, type: 'cat'
+}));
+
+const svgH = Math.max(
+  wfNodes[wfNodes.length - 1].y + NODE_H + M.b,
+  catNodes[catNodes.length - 1].y + CAT_H + M.b,
+  agNodes[agNodes.length - 1].y + NODE_H + M.b
+) + 20;
+
+// Maps
+const nMap = {};
+wfNodes.forEach(n => nMap[n.id] = n);
+agNodes.forEach(n => nMap[n.id] = n);
+catNodes.forEach(n => nMap[n.id] = n);
+
+// WF-AG links
+const wfAgLinks = [];
+workflows.forEach(wf => wf.agents.forEach(a => wfAgLinks.push({ s: wf.id, t: a })));
+
+// AG-CAT links (agent to category if agent has skills in that category)
+const agCatLinks = [];
+agents.forEach(a => {
+  catData.forEach(cat => {
+    if (a.skills.some(s => s.startsWith(cat.px + '-'))) {
+      agCatLinks.push({ s: a.id, t: cat.id, color: a.color });
+    }
+  });
+});
+
+// ═══ SVG ═══
+const svg = d3.select('#viz-wrap').append('svg').attr('width', W).attr('height', svgH);
+const tip = document.getElementById('tip');
+const tipInner = document.getElementById('tipInner');
+
+function showTip(e, html) { tipInner.innerHTML = html; tip.style.opacity = 1; posTip(e); }
+function posTip(e) {
+  let x = e.clientX + 16, y = e.clientY - 12;
+  if (x + tip.offsetWidth > window.innerWidth - 16) x = e.clientX - tip.offsetWidth - 16;
+  if (y + tip.offsetHeight > window.innerHeight - 16) y = window.innerHeight - tip.offsetHeight - 16;
+  if (y < 8) y = 8;
+  tip.style.left = x + 'px'; tip.style.top = y + 'px';
+}
+function hideTip() { tip.style.opacity = 0; }
+
+// Column headers
+[[wfX, COL_W, 'Workflows', workflows.length], [agX, COL_W, 'Agents', agents.length], [skX, SK_W, 'Skill Categories', catData.length]].forEach(([x, w, lbl, n]) => {
+  const g = svg.append('g');
+  g.append('text').attr('class','col-label').attr('x', x).attr('y', M.t + 8).text(lbl);
+  g.append('text').attr('class','col-count').attr('x', x + w).attr('y', M.t + 10).attr('text-anchor','end').text(n);
+});
+
+// ═══ BEZIER ═══
+function bez(sx, sy, tx, ty) {
+  const cp = Math.abs(tx - sx) * 0.45;
+  return `M${sx},${sy} C${sx+cp},${sy} ${tx-cp},${ty} ${tx},${ty}`;
+}
+
+// ═══ LINKS ═══
+const linkG1 = svg.append('g');
+const linkG2 = svg.append('g');
+const expandedSkillLinkG = svg.append('g');
+
+const wfAgPaths = linkG1.selectAll('path').data(wfAgLinks).join('path')
+  .attr('class', 'flow-link')
+  .attr('d', d => bez(nMap[d.s].x + nMap[d.s].w, nMap[d.s].y + nMap[d.s].h/2, nMap[d.t].x, nMap[d.t].y + nMap[d.t].h/2))
+  .attr('stroke', d => nMap[d.t].color).attr('stroke-width', 2).attr('stroke-opacity', 'var(--glow-base)');
+
+const agCatPaths = linkG2.selectAll('path').data(agCatLinks).join('path')
+  .attr('class', 'flow-link')
+  .attr('d', d => bez(nMap[d.s].x + nMap[d.s].w, nMap[d.s].y + nMap[d.s].h/2, nMap[d.t].x, nMap[d.t].y + nMap[d.t].h/2))
+  .attr('stroke', d => d.color).attr('stroke-width', 1.5).attr('stroke-opacity', 'var(--glow-base)');
+
+// ═══ HIGHLIGHT ═══
+let expandedCat = null;
+
+function hlWf(id) {
+  const conn = new Set([id]);
+  const wf = workflows.find(w => w.id === id);
+  if (wf) wf.agents.forEach(a => { conn.add(a); agents.find(x => x.id === a)?.skills.forEach(s => { const px = s.split('-')[0]; conn.add('CAT-' + px); }); });
+  dimAll(conn);
+}
+function hlAg(id) {
+  const conn = new Set([id]);
+  agents.find(a => a.id === id)?.skills.forEach(s => conn.add('CAT-' + s.split('-')[0]));
+  workflows.forEach(wf => { if (wf.agents.includes(id)) conn.add(wf.id); });
+  dimAll(conn);
+}
+function hlCat(catId) {
+  const conn = new Set([catId]);
+  const px = catId.replace('CAT-', '');
+  agents.forEach(a => { if (a.skills.some(s => s.startsWith(px + '-'))) { conn.add(a.id); workflows.forEach(wf => { if (wf.agents.includes(a.id)) conn.add(wf.id); }); } });
+  dimAll(conn);
+}
+function dimAll(conn) {
+  svg.selectAll('.node-group').classed('dimmed', d => !conn.has(d.id));
+  wfAgPaths.classed('lit', d => conn.has(d.s) && conn.has(d.t)).classed('dimmed', d => !(conn.has(d.s) && conn.has(d.t)));
+  agCatPaths.classed('lit', d => conn.has(d.s) && conn.has(d.t)).classed('dimmed', d => !(conn.has(d.s) && conn.has(d.t)));
+}
+function resetHl() {
+  svg.selectAll('.node-group').classed('dimmed', false);
+  svg.selectAll('.flow-link').classed('lit', false).classed('dimmed', false);
+}
+
+// ═══ EXPANDED SKILL PANEL ═══
+// Expand a single category (called by clicking a category block)
+function expandCategory(catId, anchorNode) {
+  collapseSkills();
+  expandedCat = catId;
+  const cat = catData.find(c => c.id === catId);
+  if (!cat) return;
+  renderSkillPanel([cat], anchorNode.y + anchorNode.h / 2);
+}
+
+// Expand ALL categories for a given agent (called by clicking an agent)
+function expandAgentSkills(agentId) {
+  collapseSkills();
+  expandedCat = 'AGENT-' + agentId;
+  const agent = agents.find(a => a.id === agentId);
+  if (!agent) return;
+
+  // Collect categories this agent touches, with only the skills this agent owns
+  const agentCats = [];
+  catData.forEach(cat => {
+    const owned = cat.skills.filter(s => agent.skills.includes(s));
+    if (owned.length > 0) {
+      agentCats.push({ ...cat, skills: owned });
+    }
+  });
+
+  const agNode = nMap[agentId];
+  renderSkillPanel(agentCats, agNode.y + agNode.h / 2);
+}
+
+// Render one or more categories as an expanded skill panel
+function renderSkillPanel(cats, centerY) {
+  // Calculate total height across all categories
+  const CAT_HEADER_H = 24;
+  const CAT_SPACING = 12;
+  let totalH = 0;
+  cats.forEach((cat, ci) => {
+    if (ci > 0) totalH += CAT_SPACING;
+    totalH += CAT_HEADER_H;
+    totalH += cat.skills.length * (SK_H + SK_GAP);
+  });
+  totalH += 8;
+
+  const startY = Math.max(M.t + 20, centerY - totalH / 2);
+
+  const skGroup = svg.append('g').attr('class', 'expanded-skills');
+
+  // Background panel
+  skGroup.append('rect')
+    .attr('x', skX - 8).attr('y', startY - 8)
+    .attr('width', SK_W + 16).attr('height', totalH + 16)
+    .attr('rx', 10).attr('fill', 'var(--canvas)')
+    .attr('stroke', cats.length === 1 ? cats[0].color : 'var(--border-hover)')
+    .attr('stroke-opacity', 0.2).attr('stroke-width', 1)
+    .attr('opacity', 0)
+    .transition().duration(200).attr('opacity', 1);
+
+  let curY = startY;
+  let globalIdx = 0;
+
+  cats.forEach((cat, ci) => {
+    if (ci > 0) curY += CAT_SPACING;
+
+    // Category header within the panel
+    skGroup.append('text')
+      .attr('x', skX + 4).attr('y', curY + 14)
+      .attr('font-family', 'JetBrains Mono, monospace').attr('font-size', '10px')
+      .attr('font-weight', 600).attr('letter-spacing', '2px')
+      .attr('text-transform', 'uppercase')
+      .attr('fill', cat.color).attr('opacity', 0.6)
+      .text(cat.name)
+      .style('opacity', 0)
+      .transition().delay(globalIdx * 20).duration(250).style('opacity', 0.6);
+
+    curY += CAT_HEADER_H;
+
+    cat.skills.forEach((skId, i) => {
+      const y = curY;
+      const idx = globalIdx;
+      const g = skGroup.append('g')
+        .attr('transform', `translate(${skX}, ${y})`)
+        .style('opacity', 0)
+        .style('cursor', 'pointer')
+        .on('mouseenter', (e) => {
+          const owners = agents.filter(a => a.skills.includes(skId)).map(a => a.name);
+          showTip(e, `<div class="tip-badge" style="background:${cat.color}">Skill</div><div class="tip-title">${SN[skId] || skId}</div><div class="tip-meta">${skId} &middot; Owned by ${owners.join(', ')}</div>`);
+        })
+        .on('mousemove', posTip)
+        .on('mouseleave', hideTip);
+
+      g.append('rect').attr('width', SK_W).attr('height', SK_H)
+        .attr('rx', 5).attr('fill', cat.color).attr('opacity', 0.12);
+      g.append('rect').attr('width', SK_W).attr('height', SK_H)
+        .attr('rx', 5).attr('fill', 'none').attr('stroke', cat.color).attr('stroke-opacity', 0.25).attr('stroke-width', 0.5);
+      g.append('text')
+        .attr('x', 10).attr('y', SK_H / 2 + 4)
+        .attr('font-family', 'JetBrains Mono, monospace').attr('font-size', '12px').attr('font-weight', 600)
+        .attr('fill', cat.color).attr('opacity', 0.85).text(skId);
+      g.append('text')
+        .attr('x', 56).attr('y', SK_H / 2 + 4)
+        .attr('font-family', 'Outfit, sans-serif').attr('font-size', '13px').attr('font-weight', 500)
+        .attr('fill', 'var(--text-hero)').attr('opacity', 0.85).text(SN[skId] || skId);
+
+      g.transition().delay(idx * 20).duration(300).ease(d3.easeCubicOut).style('opacity', 1);
+
+      // Draw links from owning agents to this skill
+      agents.forEach(a => {
+        if (a.skills.includes(skId)) {
+          const agNode = nMap[a.id];
+          expandedSkillLinkG.append('path')
+            .attr('class', 'expanded-skill-link')
+            .attr('d', bez(agNode.x + agNode.w, agNode.y + agNode.h/2, skX, y + SK_H/2))
+            .attr('fill', 'none')
+            .attr('stroke', a.color)
+            .attr('stroke-width', 1)
+            .attr('stroke-opacity', 0)
+            .transition().delay(idx * 20 + 80).duration(300)
+            .attr('stroke-opacity', 0.35);
+        }
+      });
+
+      curY += SK_H + SK_GAP;
+      globalIdx++;
+    });
+  });
+}
+
+function collapseSkills() {
+  expandedCat = null;
+  svg.selectAll('.expanded-skills').remove();
+  expandedSkillLinkG.selectAll('*').remove();
+}
+
+// ═══ WORKFLOW NODES ═══
+const wfG = svg.append('g').selectAll('g').data(wfNodes).join('g')
+  .attr('class', 'node-group').attr('transform', d => `translate(${d.x},${d.y})`)
+  .on('mouseenter', (e, d) => {
+    hlWf(d.id);
+    showTip(e, `<div class="tip-badge" style="background:${d.color}">Workflow</div><div class="tip-title">${d.name}</div><div class="tip-desc">${d.agents.length} agents in sequence</div><div class="tip-meta">${d.id} &middot; ${d.agents.map(a => agents.find(x=>x.id===a)?.name).join(' \u2192 ')}</div>`);
+  })
+  .on('mousemove', posTip)
+  .on('mouseleave', () => { resetHl(); hideTip(); });
+
+wfG.append('rect').attr('class','node-bg').attr('width', d=>d.w).attr('height', d=>d.h)
+  .attr('rx', 6).attr('fill', d=>d.color).attr('opacity', 0.18);
+wfG.append('rect').attr('width', d=>d.w).attr('height', d=>d.h)
+  .attr('rx', 6).attr('fill','none').attr('stroke', d=>d.color).attr('stroke-opacity', 0.3).attr('stroke-width', 1);
+wfG.append('text').attr('class','node-id').attr('x', 12).attr('y', d=>d.h/2+5)
+  .attr('fill', d=>d.color).text(d=>d.id);
+wfG.append('text').attr('class','node-label').attr('x', 58).attr('y', d=>d.h/2+5).text(d=>d.name);
+
+// ═══ AGENT NODES ═══
+const agG = svg.append('g').selectAll('g').data(agNodes).join('g')
+  .attr('class', 'node-group').attr('transform', d => `translate(${d.x},${d.y})`)
+  .on('mouseenter', (e, d) => {
+    hlAg(d.id);
+    const wfList = workflows.filter(w => w.agents.includes(d.id)).map(w => w.id);
+    const skillTags = d.skills.map(s => `<span class="tip-skill-tag">${s}</span>`).join('');
+    showTip(e, `<div class="tip-badge" style="background:${d.color}">Agent</div><div class="tip-title">${d.name}</div><div class="tip-desc">${d.desc}</div><div class="tip-skills">${skillTags}</div><div class="tip-meta">${d.skills.length} skills &middot; ${wfList.length} workflows (${wfList.join(', ')})</div>`);
+  })
+  .on('mousemove', posTip)
+  .on('mouseleave', () => { resetHl(); hideTip(); })
+  .on('click', (e, d) => {
+    e.stopPropagation();
+    if (expandedCat === 'AGENT-' + d.id) { collapseSkills(); }
+    else { expandAgentSkills(d.id); }
+  });
+
+agG.append('rect').attr('class','node-bg').attr('width', d=>d.w).attr('height', d=>d.h)
+  .attr('rx', 6).attr('fill', d=>d.color).attr('opacity', 0.2);
+agG.append('rect').attr('width', d=>d.w).attr('height', d=>d.h)
+  .attr('rx', 6).attr('fill','none').attr('stroke', d=>d.color).attr('stroke-opacity', 0.4).attr('stroke-width', 1);
+agG.append('circle').attr('cx', 16).attr('cy', d=>d.h/2).attr('r', 5).attr('fill', d=>d.color);
+agG.append('text').attr('class','node-label').attr('x', 28).attr('y', d=>d.h/2+5).text(d=>d.name);
+
+// ═══ CATEGORY SUMMARY NODES ═══
+const catG = svg.append('g').selectAll('g').data(catNodes).join('g')
+  .attr('class', 'node-group').attr('transform', d => `translate(${d.x},${d.y})`)
+  .on('mouseenter', (e, d) => {
+    hlCat(d.id);
+    const ownerAgents = agents.filter(a => a.skills.some(s => s.startsWith(d.px + '-'))).map(a => a.name);
+    const skillList = d.skills.map(s => `<span class="tip-skill-tag">${s} ${SN[s]||''}</span>`).join('');
+    showTip(e, `<div class="tip-badge" style="background:${d.color}">Category</div><div class="tip-title">${d.name}</div><div class="tip-desc">${d.skills.length} skills &middot; Used by ${ownerAgents.join(', ')}</div><div class="tip-skills">${skillList}</div><div class="tip-meta">Click to expand individual skills</div>`);
+  })
+  .on('mousemove', posTip)
+  .on('mouseleave', () => { resetHl(); hideTip(); })
+  .on('click', (e, d) => {
+    e.stopPropagation();
+    if (expandedCat === d.id) { collapseSkills(); }
+    else { expandCategory(d.id, d); }
+  });
+
+// Category background
+catG.append('rect').attr('class','node-bg').attr('width', d=>d.w).attr('height', d=>d.h)
+  .attr('rx', 7).attr('fill', d=>d.color).attr('opacity', 0.08);
+catG.append('rect').attr('width', d=>d.w).attr('height', d=>d.h)
+  .attr('rx', 7).attr('fill','none').attr('stroke', d=>d.color).attr('stroke-opacity', 0.2).attr('stroke-width', 1);
+
+// Category prefix badge
+catG.append('rect')
+  .attr('x', 10).attr('y', d => d.h/2 - 11).attr('width', 34).attr('height', 22)
+  .attr('rx', 5).attr('fill', d => d.color).attr('opacity', 0.2);
+catG.append('text')
+  .attr('class', 'node-id').attr('x', 27).attr('y', d => d.h/2 + 4)
+  .attr('text-anchor', 'middle').attr('fill', d => d.color)
+  .text(d => d.px);
+
+// Category name
+catG.append('text').attr('class', 'cat-name')
+  .attr('x', 54).attr('y', d => d.h/2 + 5)
+  .attr('font-family', 'Outfit, sans-serif').attr('font-size', '14px').attr('font-weight', 500)
+  .attr('fill', 'var(--text-hero)').text(d => d.name);
+
+// Skill count
+catG.append('text').attr('class', 'cat-count')
+  .attr('x', d => d.w - 40).attr('y', d => d.h/2 + 4)
+  .attr('font-family', 'JetBrains Mono, monospace').attr('font-size', '13px').attr('font-weight', 500)
+  .attr('fill', 'var(--text-tertiary)').attr('text-anchor', 'end')
+  .text(d => d.skills.length);
+
+// Expand arrow
+catG.append('text').attr('class', 'expand-arrow')
+  .attr('x', d => d.w - 16).attr('y', d => d.h/2 + 5)
+  .attr('font-size', '14px').attr('fill', 'var(--expand-hint)')
+  .attr('text-anchor', 'middle').text('\u25B8');
+
+// Click background to collapse
+document.addEventListener('click', (e) => {
+  if (expandedCat && !e.target.closest('.expanded-skills')) {
+    collapseSkills();
+  }
+});
+
+// ═══ ENTRANCE ═══
+svg.selectAll('.node-group').style('opacity', 0)
+  .transition().delay((d, i) => 200 + i * 20).duration(500).ease(d3.easeCubicOut).style('opacity', 1);
+
+svg.selectAll('.flow-link')
+  .attr('stroke-dasharray', function() { return this.getTotalLength(); })
+  .attr('stroke-dashoffset', function() { return this.getTotalLength(); })
+  .transition().delay((d, i) => 500 + i * 10).duration(700).ease(d3.easeCubicOut).attr('stroke-dashoffset', 0);
+</script>
+</body>
+</html>

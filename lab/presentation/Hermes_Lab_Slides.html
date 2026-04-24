@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Hermes Lab — Slides</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/black.css" id="theme" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/monokai.css" />
+<style>
+  :root { --accent: #4fb3ff; --accent2: #ffc857; --muted: #8a9aa8; }
+  .reveal { font-family: "Inter", "Segoe UI", system-ui, sans-serif; }
+  .reveal h1, .reveal h2, .reveal h3 { text-transform: none; letter-spacing: -0.01em; }
+  .reveal h1 { color: var(--accent); }
+  .reveal h2 { color: var(--accent); font-size: 1.8em; }
+  .reveal h3 { color: var(--accent2); font-size: 1.2em; }
+  .reveal em { color: var(--accent2); font-style: normal; font-weight: 600; }
+  .reveal code { background: #1a1a1a; color: var(--accent2); padding: 0.1em 0.3em; border-radius: 3px; font-size: 0.85em; }
+  .reveal pre { width: 90%; box-shadow: none; border: 1px solid #333; }
+  .reveal pre code { font-size: 0.55em; line-height: 1.4; padding: 0.8em; }
+  .reveal table { font-size: 0.6em; margin: 0.5em auto; border-collapse: collapse; }
+  .reveal table th { color: var(--accent); border-bottom: 2px solid var(--accent); padding: 0.3em 0.8em; }
+  .reveal table td { padding: 0.3em 0.8em; border-bottom: 1px solid #333; }
+  .reveal ul { font-size: 0.85em; }
+  .reveal ul ul { font-size: 0.9em; }
+  .reveal .tag { display: inline-block; font-size: 0.45em; padding: 0.2em 0.6em; background: var(--accent); color: #000; border-radius: 3px; vertical-align: middle; margin-left: 0.5em; font-weight: 600; }
+  .reveal .subtle { color: var(--muted); font-size: 0.7em; }
+  .reveal .callout { border-left: 4px solid var(--accent2); background: rgba(255, 200, 87, 0.08); padding: 0.6em 1em; margin: 0.6em 0; font-size: 0.8em; border-radius: 4px; }
+  .reveal .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2em; text-align: left; }
+  .reveal .two-col h3 { margin-top: 0; }
+  .reveal section.module-divider { background: linear-gradient(135deg, #0a2540 0%, #0a1929 100%); }
+  .reveal section.module-divider h1 { font-size: 3em; }
+  .reveal .layers { text-align: left; font-family: monospace; font-size: 0.7em; line-height: 1.8; background: #111; padding: 1em 1.5em; border-radius: 6px; border-left: 4px solid var(--accent); }
+  .reveal .layers span { color: var(--accent2); }
+  .reveal footer { position: fixed; bottom: 10px; left: 20px; font-size: 0.6em; color: var(--muted); }
+  .hermes-logo { font-weight: 700; letter-spacing: 0.2em; color: var(--accent); font-size: 0.7em; }
+</style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- ============================================== -->
+<!-- TITLE -->
+<!-- ============================================== -->
+<section>
+  <p class="hermes-logo">HERMES</p>
+  <h1>Hermes Lab</h1>
+  <h3>Build a Clinical Supply Chain AI Agent</h3>
+  <p class="subtle">3 hours · Hands-on · No coding required</p>
+</section>
+
+<section>
+  <h2>What You'll Build Today</h2>
+  <p>The eighth member of the Hermes team:</p>
+  <h3>The Optimization Agent</h3>
+  <ul>
+    <li><em>3+ skill definitions</em> — the building blocks</li>
+    <li><em>One complete agent</em> — README + system prompt</li>
+    <li><em>One workflow</em> — wiring it into the runner</li>
+  </ul>
+  <p class="subtle">Everything is Markdown and JSON. Not a line of Python.</p>
+</section>
+
+<section>
+  <h2>What Hermes Is</h2>
+  <ul>
+    <li>A <em>Clinical Supply Chain AI Agent Team</em> for pharmaceutical trial supply management</li>
+    <li><em>Seven specialised agents</em> collaborate — ingest data, analyse demand, plan supply, monitor risk, enforce compliance, report out</li>
+    <li><em>System-agnostic</em>: reads CSV/JSON data drops, not direct ERP/RTSM connections</li>
+    <li><em>Portable</em>: the same study package structure works for any protocol</li>
+    <li>Intelligence lives in <em>plain Markdown</em>, not code</li>
+  </ul>
+  <div class="callout subtle">
+    Educational/exploratory tool only — not a validated system.
+  </div>
+</section>
+
+<section>
+  <h2>Agenda — 9 Modules</h2>
+  <table>
+    <tr><th>M</th><th>Topic</th><th>Min</th></tr>
+    <tr><td>M0</td><td>Setup</td><td>15</td></tr>
+    <tr><td>M1</td><td>Architecture orientation</td><td>20</td></tr>
+    <tr><td>M2</td><td>Configure your study + baseline run</td><td>50</td></tr>
+    <tr><td>M3</td><td>Meet the Optimization Agent</td><td>15</td></tr>
+    <tr><td>M4</td><td>Write your skills</td><td>40</td></tr>
+    <tr><td>M5</td><td>Write the agent</td><td>30</td></tr>
+    <tr><td>M6</td><td>Define your workflow</td><td>15</td></tr>
+    <tr><td>M7</td><td>Run the workflow chain <em class="tag">payoff</em></td><td>15</td></tr>
+    <tr><td>M8</td><td>Review &amp; discussion</td><td>10</td></tr>
+  </table>
+</section>
+
+<section>
+  <h2>Three Guiding Principles</h2>
+  <h3>1. Plan top-down, build bottom-up</h3>
+  <p class="subtle">Read: workflow → agent → skill. Build: skill → agent → workflow.</p>
+  <h3>2. Markdown is the code</h3>
+  <p class="subtle">If you can write a clear instruction, you can write an agent.</p>
+  <h3>3. Errors are the lesson</h3>
+  <p class="subtle">When something fails, read the error. Don't just re-run.</p>
+</section>
+
+<!-- ============================================== -->
+<!-- MODULE 0 -->
+<!-- ============================================== -->
+<section class="module-divider">
+  <p class="hermes-logo">MODULE 0 · 15 min</p>
+  <h1>Setup</h1>
+  <h3>Get your environment working</h3>
+</section>
+
+<section>
+  <h2>M0 · Purpose</h2>
+  <p>Get every machine working: <em>VS Code open, Claude Code responding, Haiku selected, starter kit in place</em>.</p>
+  <p class="subtle">Nothing else works until this does.</p>
+</section>
+
+<section>
+  <h2>M0 · Core Concepts</h2>
+  <ul>
+    <li><em>Claude Code</em> is our AI pair-programmer, running inside VS Code. Today it's also our <em>runtime</em> — it <em>is</em> how we run Hermes.</li>
+    <li>Three models, three tradeoffs:
+      <ul>
+        <li><em>Haiku</em> — fast, cheap, good enough for running</li>
+        <li><em>Sonnet</em> — best for design suggestions</li>
+        <li><em>Opus</em> — strongest but slowest, most expensive</li>
+      </ul>
+    </li>
+    <li>Today we use <em>Haiku</em>. Switch with <code>/model</code>.</li>
+    <li>Your API key is pre-configured in a <code>.env</code> file. Don't touch it.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>M0 · What You'll Do</h2>
+  <ol>
+    <li>Extract <code>hermes-lab.zip</code> to a folder</li>
+    <li>Open that folder in VS Code</li>
+    <li>Switch Claude Code to <em>Haiku</em> (<code>/model</code>)</li>
+    <li>Test: type <code>What is Hermes?</code> in the Claude Code panel</li>
+  </ol>
+  <div class="callout">If you get a response → you're ready.</div>
+</section>
+
+<section>
+  <h2>M0 · Tips</h2>
+  <ul>
+    <li><em>Pin the Claude Code panel</em> and open the student guide in preview mode side-by-side — you'll flip between them constantly</li>
+    <li>If Claude Code feels sluggish, you're probably on Opus by accident</li>
+    <li>Keep one reference file open at all times (a skill, an agent, or the Grimoire). <em>Never work from memory</em></li>
+    <li>"API key not found"? → flag your instructor</li>
+  </ul>
+</section>
+
+<!-- ============================================== -->
+<!-- MODULE 1 -->
+<!-- ============================================== -->
+<section class="module-divider">
+  <p class="hermes-logo">MODULE 1 · 20 min</p>
+  <h1>Architecture Orientation</h1>
+  <h3>A mental map of Hermes</h3>
+</section>
+
+<section>
+  <h2>M1 · Purpose</h2>
+  <p>Get oriented with what's <em>already</em> in the starter kit.</p>
+  <p class="subtle">Goal: know where things live, so when you build your own agent the surrounding landscape makes sense.</p>
+</section>
+
+<section>
+  <h2>The 5 Layers of Hermes</h2>
+  <div class="layers">
+    <span>Layer 5:</span> RUNNER / COMMANDS &nbsp;→ executes workflows<br/>
+    <span>Layer 4:</span> WORKFLOWS &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; → which agents run, in what order<br/>
+    <span>Layer 3:</span> AGENTS &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; → AI specialists with their own instructions<br/>
+    <span>Layer 2:</span> SKILLS &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; → atomic capabilities agents apply<br/>
+    <span>Layer 1:</span> STUDY PACKAGE &nbsp;&nbsp;&nbsp; → your study's config + CSV data
+  </div>
+  <p class="subtle">Runner orchestrates · workflows sequence · agents specialise · skills do one thing · study package is the data.</p>
+</section>
+
+<section>
+  <h2>Folder Map</h2>
+  <pre><code class="language-text">c:\Hermes\
+├── README.md                Quickstart
+├── CLAUDE.md                Claude Code config
+├── Hermes_Grimoire.md       The encyclopedia
+│
+├── agents/                  7 specialised agents
+├── skills/                  76 shared skill definitions
+├── workflows/               5 workflow markdowns + workflows.json
+├── runner/                  Python execution engine
+├── studies/                 Per-study packages
+├── StudyDataCreation/       Browser-based test-data generator
+├── lab/                     3-hour workshop kit
+└── .claude/                 Commands, settings</code></pre>
+</section>
+
+<section>
+  <h2>Two Key Truths</h2>
+  <h3>Skills are a shared library</h3>
+  <p class="subtle">Not agent-owned. The same skill (e.g. SI-01) can be called by several agents. This keeps the system small.</p>
+  <h3>Every agent has the same two-file shape</h3>
+  <p class="subtle"><code>README.md</code> + <code>system_prompt.md</code>. Learn the shape once, apply it seven times.</p>
+</section>
+
+<section>
+  <h2>What Version Are You Building?</h2>
+  <div class="two-col">
+    <div>
+      <h3>Today: Prompt-Only</h3>
+      <ul>
+        <li>Every agent &amp; skill = a Markdown file</li>
+        <li>No custom code</li>
+        <li>Accessible to non-technical users</li>
+        <li>Easy to inspect &amp; modify</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Production: Agent SDK</h3>
+      <ul>
+        <li>Each agent gets an autonomous runtime</li>
+        <li>Agents call each other directly</li>
+        <li>Connect to live data via MCP — no data drops</li>
+        <li>End-to-end with no human in the loop</li>
+      </ul>
+    </div>
+  </div>
+  <p class="subtle" style="margin-top: 1em;">The Markdown you write today <em>becomes the system prompts</em> for the production version.</p>
+</section>
+
+<section>
+  <h2>M1 · Explore Activity</h2>
+  <p class="subtle">10 minutes — open and read each file:</p>
+  <ol>
+    <li><strong>A skill:</strong> <code>skills/SI-01_stock_position_calculator.md</code>
+      <br/><span class="subtle">What does it do? What are its inputs? What does it output?</span></li>
+    <li><strong>An agent:</strong> <code>agents/supply_analyst/README.md</code>
+      <br/><span class="subtle">What is it responsible for? How many skills? What data?</span></li>
+    <li><strong>The workflows:</strong> <code>workflows/workflows.json</code>
+      <br/><span class="subtle">What is a workflow? How many steps in WF-02?</span></li>
+  </ol>
+</section>
+
+<section>
+  <h2>M1 · Checkpoint</h2>
+  <div class="callout">
+    Can you explain <em>agent</em>, <em>skill</em>, and <em>workflow</em> in one sentence each?
+  </div>
+  <p class="subtle">Stuck? The Grimoire (<code>Hermes_Grimoire.md</code>) has a glossary — or ask Claude: <em>"Explain agent, skill, and workflow in Hermes, one sentence each."</em></p>
+</section>
+
+<!-- ============================================== -->
+<!-- MODULE 2 -->
+<!-- ============================================== -->
+<section class="module-divider">
+  <p class="hermes-logo">MODULE 2 · 50 min</p>
+  <h1>Configure Your Study</h1>
+  <h3>Build the data foundation · run a baseline</h3>
+</section>
+
+<section>
+  <h2>M2 · Purpose</h2>
+  <p>Create a real, working study package from your <em>Scenario Card</em>, generate test CSV data, and run a <em>baseline end-to-end chain</em>.</p>
+  <p class="subtle">By the end: a functioning Hermes study and output files to compare your own agent against later.</p>
+</section>
+
+<section>
+  <h2>Key Concept · System-Agnostic</h2>
+  <ul>
+    <li>Hermes does <em>not</em> talk to ERP or RTSM systems directly</li>
+    <li>It reads <em>CSV/JSON data drops</em> that any source can produce</li>
+    <li>That's what makes it <em>portable</em> across studies and sponsors</li>
+    <li>The data layer is the boundary — change the source, reuse the intelligence</li>
+  </ul>
+</section>
+
+<section>
+  <h2>The Study Package Shape</h2>
+  <pre><code class="language-text">studies/&lt;STUDY_ID&gt;/
+├── config/
+│   ├── study_config.json      arms, items, countries, sites
+│   ├── supply_network.json    depots, manufacturers, lanes
+│   └── policies.json          safety stock, reorder, budget
+├── reference/
+├── data_drops/
+│   └── 2026-04-22/            ← dated folder (YYYY-MM-DD)
+│       ├── ctms_plan.csv
+│       ├── erp_inventory.csv
+│       └── rtsm_actuals.csv
+└── outputs/</code></pre>
+  <p class="subtle">The date format isn't decorative — the runner uses it to find the right drop.</p>
+</section>
+
+<section>
+  <h2>The Flow You'll Follow</h2>
+  <ol>
+    <li><code>/init-study &lt;STUDY_ID&gt;</code> &nbsp;<span class="subtle">creates folder skeleton</span></li>
+    <li>Open <code>StudyDataCreation/index.html</code> in your browser</li>
+    <li>Fill in <em>Study Config</em> → download JSON</li>
+    <li>Fill in <em>Supply Network</em> → download JSON</li>
+    <li>Fill in <em>Policies</em> → download JSON</li>
+    <li>Move all three into <code>studies/&lt;STUDY_ID&gt;/config/</code></li>
+    <li>Generate test CSVs → drop into <code>data_drops/&lt;today&gt;/</code></li>
+    <li><code>/preflight</code> &nbsp;<span class="subtle">integrity check</span></li>
+    <li><code>/run-workflow-chain &lt;STUDY_ID&gt; WF-01 WF-02 WF-05</code></li>
+  </ol>
+</section>
+
+<section>
+  <h2>The Slash Commands</h2>
+  <h3><code>/init-study</code></h3>
+  <p class="subtle">Creates the study folder skeleton with templates.</p>
+  <h3><code>/preflight</code></h3>
+  <p class="subtle">Integrity gate — catches missing files, malformed JSON, broken references <em>before</em> they become confusing agent errors 20 minutes later.</p>
+  <h3><code>/run-workflow-chain</code></h3>
+  <p class="subtle">Runs multiple workflows in sequence. Today's baseline: WF-01 → WF-02 → WF-05 (demand → supply → execution).</p>
+  <div class="callout">Commands live in <code>.claude/commands/</code>. They're part of the framework, not magic.</div>
+</section>
+
+<section>
+  <h2>⚠ The #1 Time Sink</h2>
+  <h3>ID Mismatches</h3>
+  <ul>
+    <li><code>ARM-A</code> vs <code>ARM_A</code> ❌</li>
+    <li><code>SITE-01</code> vs <code>Site-01</code> ❌</li>
+    <li>Item IDs in CSVs that don't match IDs in <code>study_config.json</code> ❌</li>
+  </ul>
+  <div class="callout">
+    If you get a weird error in Module 7, <em>90% of the time it's an ID typo from Module 2</em>.
+  </div>
+  <p class="subtle">Use short, consistent IDs. Copy-paste rather than retype.</p>
+</section>
+
+<section>
+  <h2>M2 · Run Your Baseline Chain</h2>
+  <pre><code class="language-bash">/run-workflow-chain &lt;STUDY_ID&gt; WF-01 WF-02 WF-05</code></pre>
+  <p>Watch the agents execute:</p>
+  <ol>
+    <li><em>WF-01</em> — Supervisor validates</li>
+    <li><em>WF-02</em> — Demand &amp; Supply analysts</li>
+    <li><em>WF-05</em> — Execution / reporting</li>
+  </ol>
+  <p class="subtle">When asked "save outputs?" → say <em>yes</em>. These are your <em>before-picture</em> for M7's after-picture.</p>
+</section>
+
+<section>
+  <h2>M2 · Tips</h2>
+  <ul>
+    <li>Scenario Card is a <em>starting point, not a contract</em> — adjust values that feel unrealistic</li>
+    <li>Use short, memorable IDs (<code>SITE-01</code>, not <code>CLINICAL-SITE-BOSTON-MASS-001</code>)</li>
+    <li>Downloads go to your browser's <em>Downloads folder</em> — move them manually</li>
+    <li>Closed the browser? Use <em>Load Config</em> buttons to re-import and keep editing</li>
+    <li>Run <code>/preflight</code> <em>before and after</em> any change</li>
+    <li><em>Before moving on</em>: <code>git add -A && git commit -m "lab baseline"</code> — saves you if you break something later</li>
+  </ul>
+</section>
+
+<!-- ============================================== -->
+<!-- MODULE 3 -->
+<!-- ============================================== -->
+<section class="module-divider">
+  <p class="hermes-logo">MODULE 3 · 15 min</p>
+  <h1>Meet the Optimization Agent</h1>
+  <h3>Read the brief · plan before you build</h3>
+</section>
+
+<section>
+  <h2>M3 · Purpose</h2>
+  <p>Switch from <em>"configure existing Hermes"</em> to <em>"design a new agent"</em>.</p>
+  <p>Read the brief, then plan your agent — <em>on paper</em> — before touching any file.</p>
+</section>
+
+<section>
+  <h2>The Order Matters</h2>
+  <h3>Read → Plan → Build</h3>
+  <ul>
+    <li>The brief tells you <em>what</em> the agent should do</li>
+    <li>The design decisions of <em>how</em> are yours</li>
+    <li>There is <em>no single correct answer</em> — two students will design differently-shaped agents that both work</li>
+    <li><em>Planning on paper forces brevity</em> and is faster than typing</li>
+  </ul>
+</section>
+
+<section>
+  <h2>The One-Sentence Test</h2>
+  <div class="callout">
+    Can you describe your agent's purpose in <em>one sentence</em>?
+  </div>
+  <p>If you can't → the scope is too wide. Keep cutting.</p>
+  <p class="subtle">Name your agent's purpose in one sentence <em>before</em> you name any skill.</p>
+</section>
+
+<section>
+  <h2>M3 · Plan Your Agent</h2>
+  <p>Open <code>lab/optimization_agent_brief.md</code>. Then answer on paper:</p>
+  <ol>
+    <li>How many skills do you think this agent needs?</li>
+    <li>What should each skill analyse? <span class="subtle">(one sentence each)</span></li>
+    <li>What data file does each skill read?</li>
+    <li>What signal will your agent emit if it finds a problem?</li>
+  </ol>
+  <p class="subtle">There's a sweet spot around <em>3 skills</em>. Start there.</p>
+</section>
+
+<!-- ============================================== -->
+<!-- MODULE 4 -->
+<!-- ============================================== -->
+<section class="module-divider">
+  <p class="hermes-logo">MODULE 4 · 40 min</p>
+  <h1>Write Your Skills</h1>
+  <h3>The building blocks of your agent</h3>
+</section>
+
+<section>
+  <h2>M4 · Purpose</h2>
+  <p>Write <em>at least three</em> skill files.</p>
+  <p>Each skill should:</p>
+  <ul>
+    <li>Read <em>one</em> input</li>
+    <li>Do <em>one</em> analysis</li>
+    <li>Return <em>one</em> kind of finding</li>
+  </ul>
+</section>
+
+<section>
+  <h2>What Is a Skill?</h2>
+  <p>A <em>reusable procedure</em> that answers four questions:</p>
+  <ul>
+    <li>What do I analyse?</li>
+    <li>What data do I read?</li>
+    <li>What steps do I follow?</li>
+    <li>What do I return?</li>
+  </ul>
+</section>
+
+<section>
+  <h2>The 7 Sections of a Skill File</h2>
+  <ol>
+    <li><em>Purpose</em> — what the skill does (2–3 sentences)</li>
+    <li><em>Owner</em> — which agent uses this skill</li>
+    <li><em>When This Skill Is Used</em> — workflow &amp; trigger</li>
+    <li><em>Inputs</em> — data files, config values, upstream outputs</li>
+    <li><em>Steps</em> — numbered procedure (4–6 steps)</li>
+    <li><em>Output</em> — what the skill returns</li>
+    <li><em>Notes</em> — caveats, limitations <span class="subtle">(optional)</span></li>
+  </ol>
+  <p class="subtle">Template: <code>lab/templates/skill_template.md</code></p>
+</section>
+
+<section>
+  <h2>Naming &amp; Placement</h2>
+  <pre><code class="language-text">/skills/OA-01_your_skill_name.md
+        ↑  ↑
+        │  └─ your first skill
+        └──── OA = Optimization Agent (your category)</code></pre>
+  <p>Use <em>verbs</em>: <code>detect_</code>, <code>flag_</code>, <code>calculate_</code>, <code>identify_</code>, <code>spot_</code></p>
+  <p class="subtle">Verbs force single responsibility. Nouns hide multiple jobs.</p>
+</section>
+
+<section>
+  <h2>Suggested Focus Areas</h2>
+  <table>
+    <tr><th>#</th><th>Focus</th><th>Data file</th></tr>
+    <tr><td>OA-01</td><td>Depots above max-weeks policy</td><td>erp_inventory.csv + policies.json</td></tr>
+    <tr><td>OA-02</td><td>Lots likely to expire unused</td><td>erp_inventory.csv</td></tr>
+    <tr><td>OA-03</td><td>Sites with stock but no dispensing</td><td>site_inventory.csv</td></tr>
+    <tr><td>OA-04</td><td>Lanes with repeated emergency shipments</td><td>erp_inventory.csv</td></tr>
+    <tr><td>OA-05</td><td>Turn findings into recommendations</td><td>outputs of other skills</td></tr>
+  </table>
+  <p class="subtle">Starting points — rename, reshape, or replace any of them.</p>
+</section>
+
+<section>
+  <h2>Single Responsibility</h2>
+  <div class="callout">
+    If a skill name contains <em>"and"</em>, it's two skills.
+  </div>
+  <p class="subtle">"Detect near-expiry lots <em>and</em> recommend action" → split into:</p>
+  <ul>
+    <li>OA-02: <code>flag_near_expiry_lots</code></li>
+    <li>OA-05: <code>generate_recommendations</code></li>
+  </ul>
+  <p class="subtle">One skill, one CSV input. Crossing files usually means the skill is two skills.</p>
+</section>
+
+<section>
+  <h2>What Good Looks Like</h2>
+  <div class="callout" style="font-size: 1em;">
+    A well-written skill produces a finding a human can act on in <em>one sentence</em>:
+    <br/><br/>
+    "<em>Depot APAC-01 holds 14 weeks of ARM-A kit stock against an 8-week target — 6 weeks excess, flag as <code>OPTIMIZATION_OPPORTUNITY</code>.</em>"
+  </div>
+  <p class="subtle">If your skill's output can't be phrased this crisply → scope is probably too broad.</p>
+</section>
+
+<section>
+  <h2>Build One, Then Test It</h2>
+  <ol>
+    <li>Write OA-01</li>
+    <li>Ask Claude: <em>"Read skills/OA-01 and tell me what it does"</em></li>
+    <li>Fix issues</li>
+    <li><em>Then</em> write OA-02</li>
+  </ol>
+  <p class="subtle">Don't write five skills first and debug a wall of errors.</p>
+</section>
+
+<section>
+  <h2>M4 · Tips</h2>
+  <ul>
+    <li>Stub <em>all</em> your skills as one-line descriptions first — see the whole map before committing to detail</li>
+    <li>Reference other skills by ID (<code>see OA-02</code>), never copy-paste</li>
+    <li>If Claude rewrites your skill into something bigger → push back. <em>Terse beats comprehensive</em></li>
+    <li>Copy an existing skill (<code>SI-01</code>, <code>AI-01</code>) as a starting shape — blank pages kill momentum</li>
+  </ul>
+  <div class="callout">Checkpoint: <em>3+ skill files in /skills/</em>, all sections filled in, no TODO markers</div>
+</section>
+
+<!-- ============================================== -->
+<!-- MODULE 5 -->
+<!-- ============================================== -->
+<section class="module-divider">
+  <p class="hermes-logo">MODULE 5 · 30 min</p>
+  <h1>Write the Agent</h1>
+  <h3>Assemble the skills into a specialist</h3>
+</section>
+
+<section>
+  <h2>M5 · Purpose</h2>
+  <p>Assemble your skills into an agent with:</p>
+  <ul>
+    <li>A clear <em>identity</em></li>
+    <li>A <em>procedure</em> (what to do when invoked)</li>
+    <li>A <em>routing vocabulary</em> (signals)</li>
+  </ul>
+  <p class="subtle">Output: <code>agents/optimization_agent/</code> folder with <code>README.md</code> + <code>system_prompt.md</code>.</p>
+</section>
+
+<section>
+  <h2>An Agent Is 6 Things</h2>
+  <ol>
+    <li><em>Identity</em> — who is this agent, what are they responsible for?</li>
+    <li><em>Skills Table</em> — your OA- skills, with when to use each</li>
+    <li><em>Procedure</em> — 4–5 numbered steps</li>
+    <li><em>Output Format</em> — what the agent's output looks like</li>
+    <li><em>Halt Conditions</em> — 3–4 conditions that stop the agent</li>
+    <li><em>Rules</em> — 3–4 rules about <em>how</em> the agent behaves</li>
+  </ol>
+  <p class="subtle">Reference: <code>agents/supervisor/system_prompt.md</code> · <code>agents/demand_analyst/system_prompt.md</code></p>
+</section>
+
+<section>
+  <h2>⚠ The Silent Failure</h2>
+  <div class="callout">
+    An agent only "knows about" skills listed in its <em>Skills Table</em>.
+  </div>
+  <p>If you wrote OA-05 but forgot to list it → <em>it will never run</em>.</p>
+  <p>No error. No warning. Just silence.</p>
+  <p class="subtle">Read your Skills Table aloud before moving on.</p>
+</section>
+
+<section>
+  <h2>Your Agent's Three Signals</h2>
+  <h3><code>OPTIMIZATION_OPPORTUNITY</code></h3>
+  <p class="subtle">Excess stock, avoidable waste, a cheaper or faster alternative exists.</p>
+  <h3><code>CRITICAL_WASTE_RISK</code></h3>
+  <p class="subtle">Near-term expiry, stranded stock, imminent loss if nobody acts.</p>
+  <h3><code>NO_ACTION</code></h3>
+  <p class="subtle">Ran cleanly, nothing worth flagging. <em>This is a valid answer, not an error.</em></p>
+  <div class="callout">Every signal must be tied to a <em>decision rule</em> in your system prompt: "emit X when Y".</div>
+</section>
+
+<section>
+  <h2>M5 · Time Plan (30 min)</h2>
+  <table>
+    <tr><th>Section</th><th>What to write</th><th>Min</th></tr>
+    <tr><td>Identity</td><td>2–3 sentences: who is this agent?</td><td>3</td></tr>
+    <tr><td>Skills Table</td><td>Your OA- skills + when to use each</td><td>5</td></tr>
+    <tr><td>Procedure</td><td>4–5 numbered steps referencing OA-0X</td><td>12</td></tr>
+    <tr><td>Output Format</td><td>What the output looks like</td><td>5</td></tr>
+    <tr><td>Halt Conditions</td><td>3–4 stop conditions</td><td>3</td></tr>
+    <tr><td>Rules</td><td>3–4 behaviour rules</td><td>2</td></tr>
+  </table>
+</section>
+
+<section>
+  <h2>Common Pitfalls — Check Before Moving On</h2>
+  <ul>
+    <li>Skills Table lists a skill that doesn't exist as a file → <em>silent failure</em></li>
+    <li>Agent folder named wrong (<code>Optimization_Agent</code>, <code>optimisation_agent</code>) → workflow in M6 won't resolve it</li>
+    <li>Procedure never says <em>"emit signal X when Y"</em> → agent finishes without emitting anything</li>
+    <li>Procedure step says "analyse stock" without naming a skill → agent won't know what to run</li>
+  </ul>
+</section>
+
+<section>
+  <h2>M5 · Tips</h2>
+  <ul>
+    <li>Write the system prompt as <em>prose</em>, not bullet salad. <em>Instructions to a smart colleague</em>, not a spec sheet</li>
+    <li>Procedure should read like a <em>runbook</em> — someone could follow it without knowing the domain</li>
+    <li>Halt conditions are how you stay safe. <em>Be generous</em>. A halt is cheap; a bad output isn't</li>
+    <li>Copy-paste <code>demand_analyst/system_prompt.md</code> and edit. Blank pages kill momentum</li>
+  </ul>
+</section>
+
+<!-- ============================================== -->
+<!-- MODULE 6 -->
+<!-- ============================================== -->
+<section class="module-divider">
+  <p class="hermes-logo">MODULE 6 · 15 min</p>
+  <h1>Define Your Workflow</h1>
+  <h3>Wire your agent into the runner</h3>
+</section>
+
+<section>
+  <h2>M6 · Purpose</h2>
+  <p>Register your agent in <code>workflows/workflows.json</code> so the runner can execute it.</p>
+  <p>Two things to add:</p>
+  <ol>
+    <li>Your three signals → global <code>routing_signals</code> array</li>
+    <li>Your workflow <em>WF-OA-01</em> → <code>workflows</code> object</li>
+  </ol>
+</section>
+
+<section>
+  <h2>Workflows Are the Orchestration Layer</h2>
+  <ul>
+    <li>They say <em>which agent runs, in what order, with what task</em></li>
+    <li>They do <em>not</em> contain the intelligence — that lives in the agent and skills</li>
+    <li>Think of a workflow as a <em>recipe</em>, the agents/skills as <em>ingredients</em></li>
+  </ul>
+</section>
+
+<section>
+  <h2>Add Your Signals (Globally)</h2>
+  <p>At the top of <code>workflows.json</code>:</p>
+  <pre><code class="language-json">"routing_signals": [
+  ... existing signals ...
+  "OPTIMIZATION_OPPORTUNITY",
+  "NO_ACTION",
+  "CRITICAL_WASTE_RISK"
+]</code></pre>
+  <div class="callout">
+    Signals must appear in <em>two places</em>:<br/>
+    1. The global <code>routing_signals</code> array (so the system recognises them)<br/>
+    2. Your agent's system prompt (so the agent knows when to emit them)
+  </div>
+</section>
+
+<section>
+  <h2>Add Your Workflow</h2>
+  <pre><code class="language-json">"WF-OA-01": {
+  "name": "Optimization Analysis",
+  "steps": [
+    {
+      "agent": "optimization_agent",
+      "task": "YOUR TASK DESCRIPTION — describe in plain English
+               what the agent should analyse and what signals
+               it should emit"
+    }
+  ]
+}</code></pre>
+  <div class="callout"><em>The <code>"agent"</code> value must match your folder name in <code>/agents/</code> exactly.</em> Case-sensitive. Spelling-sensitive.</div>
+</section>
+
+<section>
+  <h2>M6 · Tips</h2>
+  <ul>
+    <li><em>One missing comma breaks the whole file.</em> Save and glance for red squiggles after every edit</li>
+    <li>Write <code>"task"</code> as a <em>concrete instruction</em>, not a vague mission:
+      <ul>
+        <li>✅ "Analyse depot network for excess stock above the max-weeks policy; emit OPTIMIZATION_OPPORTUNITY when found"</li>
+        <li>❌ "Do optimisation"</li>
+      </ul>
+    </li>
+    <li>Ask Claude: <em>"Is my workflows.json valid JSON?"</em></li>
+    <li>When you say "it won't run" in M7, <em>first</em> check JSON validity</li>
+  </ul>
+</section>
+
+<!-- ============================================== -->
+<!-- MODULE 7 -->
+<!-- ============================================== -->
+<section class="module-divider">
+  <p class="hermes-logo">MODULE 7 · 15 min</p>
+  <h1>Run the Workflow Chain</h1>
+  <h3>The payoff</h3>
+</section>
+
+<section>
+  <h2>M7 · Purpose</h2>
+  <p>Run <em>your own agent</em> end-to-end against <em>your own study</em>.</p>
+  <p>Read the output <em>critically</em>.</p>
+  <div class="callout">By the end: a file in <code>outputs/</code> with at least one finding that came from a skill <em>you</em> wrote.</div>
+</section>
+
+<section>
+  <h2>Before You Run — Verify</h2>
+  <p>Check <code>studies/&lt;STUDY_ID&gt;/data_drops/&lt;today&gt;/</code> contains:</p>
+  <ul>
+    <li><code>rtsm_actuals.csv</code></li>
+    <li><code>ctms_plan.csv</code></li>
+    <li><code>erp_inventory.csv</code></li>
+    <li><code>site_inventory.csv</code> <span class="subtle">(if your skills need it)</span></li>
+  </ul>
+  <p class="subtle">Missing? Regenerate from the Study Data Creation GUI.</p>
+</section>
+
+<section>
+  <h2>Run It</h2>
+  <pre><code class="language-bash">/run-workflow-chain &lt;STUDY_ID&gt; WF-01 WF-OA-01</code></pre>
+  <p>You'll see:</p>
+  <ol>
+    <li>Supervisor validates data (WF-01)</li>
+    <li>Your Optimization Agent runs its analysis (WF-OA-01)</li>
+  </ol>
+  <p class="subtle"><em>Design with Sonnet, run with Haiku.</em> Saves tokens during execution.</p>
+</section>
+
+<section>
+  <h2>"Completed" Doesn't Mean "Correct"</h2>
+  <div class="callout">
+    A workflow can complete with <em>empty findings</em>. Always open the output and read it.
+  </div>
+  <p>Navigate to <code>studies/&lt;STUDY_ID&gt;/outputs/&lt;today&gt;/</code> and read:</p>
+  <ul>
+    <li>What inefficiencies did your agent detect?</li>
+    <li>What signal did it emit?</li>
+    <li>What actions did it recommend?</li>
+  </ul>
+</section>
+
+<section>
+  <h2>When the First Run Fails</h2>
+  <p>It often does. The first thing to check:</p>
+  <ol>
+    <li><em>JSON validity</em> in <code>workflows.json</code> (M6)</li>
+    <li><em>Agent folder name</em> matches the <code>"agent"</code> value (M5 / M6)</li>
+    <li><em>Skill in the Skills Table</em> exists as a file (M5)</li>
+    <li><em>ID mismatches</em> between CSVs and config (M2 root cause)</li>
+  </ol>
+  <p class="subtle">Read the error. Don't just re-run.</p>
+</section>
+
+<section>
+  <h2>🎁 Bonus — Interrogate Your Agents</h2>
+  <p>After the chain runs, ask questions in natural language:</p>
+  <ul>
+    <li>"What happens if the study start date is delayed by 3 months?"</li>
+    <li>"What happens if study dispensing is paused for 8 weeks?"</li>
+    <li>"What happens if we close down site X?"</li>
+    <li>"What's the impact if I have to quarantine lot Y?"</li>
+    <li>"Clinical wants to add a new country using existing supplies. Give me a discovery-meeting checklist."</li>
+  </ul>
+  <div class="callout">This is where the <em>real insight surfaces</em>. Don't skip it.</div>
+</section>
+
+<!-- ============================================== -->
+<!-- MODULE 8 -->
+<!-- ============================================== -->
+<section class="module-divider">
+  <p class="hermes-logo">MODULE 8 · 10 min</p>
+  <h1>Review &amp; Discussion</h1>
+  <h3>Compare · reflect · take something home</h3>
+</section>
+
+<section>
+  <h2>M8 · Purpose</h2>
+  <p>Surface the diversity of designs across the room.</p>
+  <p>Extract <em>one takeaway</em> you could apply at work.</p>
+</section>
+
+<section>
+  <h2>Three Things to Hold On To</h2>
+  <ul>
+    <li><em>Comparison is the point, not ranking.</em> Two valid designs will disagree — that's the interesting part</li>
+    <li><em><code>NO_ACTION</code> is a valid result</em>, not a failure. Check thresholds before "fixing" it</li>
+    <li><em>One takeaway you'd apply at work</em> &gt; a flawless implementation</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Discussion Questions</h2>
+  <ol>
+    <li>What signal did your agent emit?</li>
+    <li>How many skills did you write? How does that compare to a classmate?</li>
+    <li>If two students have different skill structures, did their recommendations differ?</li>
+    <li>What would you change about your agent's instructions to make it more useful?</li>
+    <li>If you started over, what would your <em>first</em> skill be?</li>
+    <li>Where could you apply this kind of optimization agent in your own work?</li>
+  </ol>
+</section>
+
+<section>
+  <h2>What You Just Built Is a Blueprint</h2>
+  <div class="two-col">
+    <div>
+      <h3>Today</h3>
+      <p class="subtle">Prompt-only framework. You wrote Markdown. Claude Code ran it.</p>
+    </div>
+    <div>
+      <h3>Tomorrow</h3>
+      <p class="subtle">Same Markdown becomes system prompts for an <em>Agent SDK</em> system with live data connections and no human in the loop.</p>
+    </div>
+  </div>
+  <p class="subtle" style="margin-top: 1em;">Your Monday-morning claim: <em>"We could build one of these for our team."</em></p>
+</section>
+
+<!-- ============================================== -->
+<!-- CLOSE -->
+<!-- ============================================== -->
+<section>
+  <h2>Stretch Exercises (If Time)</h2>
+  <ul>
+    <li><em>A</em> — Add a <em>Notes</em> section to a skill explaining an edge case</li>
+    <li><em>B</em> — Define <em>WF-OA-02</em> chaining your agent after Supply Analyst</li>
+    <li><em>C</em> — Compare your Procedure to the reference answer</li>
+    <li><em>D</em> — Write a sixth skill: a Budget Impact Estimator</li>
+  </ul>
+  <p class="subtle">Ideas for future agents: Financial Advisor · Capacity Agent · Site Experience Agent</p>
+</section>
+
+<section>
+  <p class="hermes-logo">HERMES</p>
+  <h1>Thank You</h1>
+  <p class="subtle">Questions?</p>
+  <p class="subtle" style="margin-top: 2em;">Reference: <code>Hermes_Grimoire.md</code> · <code>lab/student/student_guide.md</code></p>
+</section>
+
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/highlight.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/notes/notes.js"></script>
+<script>
+  Reveal.initialize({
+    hash: true,
+    slideNumber: 'c/t',
+    controls: true,
+    progress: true,
+    transition: 'fade',
+    width: 1280,
+    height: 800,
+    margin: 0.06,
+    plugins: [ RevealHighlight, RevealNotes ]
+  });
+</script>
+</body>
+</html>
